@@ -5,7 +5,7 @@ Delamain Corporation - Fleet Manager
 {% endblock %}
 
 {% block content %}
-    <h2 class="subtitle">All Scenarios</h2>
+<h2 class="subtitle">All Scenarios: </h2>
 <div>
     <div class="field is-grouped">
         <!-- TODO validate min 1 max 50 for vehicles and 1 and 200 for customers -->
@@ -16,20 +16,29 @@ Delamain Corporation - Fleet Manager
             <input id="customers_post" class="input" type="number">
         </p>
         <p class="control">
-            <button id="something" class="button" hx-post="/api/scenario" hx-vars="js:{...getScenarioValues()}" hx-target="#scenarios" hx-swap="beforeend">
+            <button id="something" class="button" hx-post="/api/scenario" hx-vars="js:{...getScenarioValues()}"
+                    hx-target="#scenarios" hx-swap="beforeend" hx-on="afterRequest: window.location.reload()"s>
                 Add new Scenario
             </button>
         </p>
     </div>
-    </div>
+</div>
 <div id="scenarios" class="m-2">
-{% for scenario in scenarios %}
-	<div class="box"><a href="{{ url_for("view_scenario", id=scenario.id) }}">
-        Scenario: {{ scenario.id }} with {{ scenario.vehicles|length }} Vehicles
-        and {{ scenario.customers|length }} Customers</a>
-        <button class="delete" hx-delete="/api/scenario/{{ scenario.id }}" hx-target="closest .box" hx-swap="outerHTML"></button>
+    {% for scenario in scenarios %}
+    <div class="scenario-container">
+
+            <div class="scenario-box"><a href="{{ url_for('view_scenario', id=scenario.id) }}" class="scenario-link">
+                Scenario: {{ scenario.id }} with {{ scenario.vehicles|length }} Vehicles
+                and {{ scenario.customers|length }} Customers
+            </a></div>
+
+        <button class="delete"
+                hx-delete="/api/scenario/{{ scenario.id }}"
+                hx-target="closest .scenario-container"
+                hx-swap="outerHTML">
+        </button>
     </div>
-{% endfor %}
+    {% endfor %}
 </div>
 <script>
     function getScenarioValues() {

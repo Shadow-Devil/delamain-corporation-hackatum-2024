@@ -5,8 +5,8 @@ from backend_requests import backend, scenario_runner_api, controller1
 app = Flask(__name__)
 
 @app.route("/")
-def home():
-    return render_template("home.html")
+def view_all_scenarios():
+    return render_template("home.html", scenarios=backend.get_scenarios())
 
 @app.route("/scenarios/<id>")
 def view_scenario(id):

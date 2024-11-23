@@ -12,7 +12,7 @@ Delamain Corporation - Scenario {{ scenario.id }}
 </style>
 
 <div class="container">
-    <h2 class="subtitle">{{ scenario.id }}</h2>
+    <h2 class="subtitle">Scenario: {{ scenario.id }}</h2>
     <button
             hx-post="{{ url_for("launch_scenario", id=scenario.id) }}"
             hx-swap="outerHTML"
@@ -98,10 +98,10 @@ Delamain Corporation - Scenario {{ scenario.id }}
                 for (const vehicle of response.vehicles) {
                     if (vehicle.customerId != null && lines[vehicle.id] == null) {
                         var line = L.polyline([vehicleMap[vehicle.id].getLatLng(), customerMap[vehicle.customerId].getLatLng()], {color: 'red'}).addTo(map);
-                        console.log(line);
+                        //console.log(line);
                         lines[vehicle.id] = line;
                     }
-                    if (vehicle.customerId != null && L.latLng(vehicle.coordX, vehicle.coordY) == customerMap[vehicle.customerId].getLatLng()) {
+                    if (vehicle.customerId != null && L.latLng(vehicle.coordX, vehicle.coordY).equals(customerMap[vehicle.customerId].getLatLng())) {
                         lines[vehicle.id] = null
                     }
                     vehicleMap[vehicle.id].setLatLng([vehicle.coordX, vehicle.coordY]).update()
