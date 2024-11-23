@@ -67,6 +67,7 @@ Delamain Corporation - Scenario {{ scenario.id }}
         marker.addTo(map)
             .bindPopup(`<b>Customer:</b> ${customer.id}<br><b>Coordinates:</b> ${customer.coordX}, ${customer.coordY}`);
         customerMap[customer.id] = marker;
+        L.polyline([[customer.coordX, customer.coordY], [customer.destinationX, customer.destinationY]], {color: "blue"}).addTo(map);
     }
     var lines = {}
 

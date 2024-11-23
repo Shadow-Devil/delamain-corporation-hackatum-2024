@@ -57,7 +57,7 @@ def assign(scenario: ScenarioDTO,ratio:float) -> list[StandardMagentaVehicleDTO]
                 #计算加权距离列表
                 end_positions,distance_to_go = base_distance_calculator(vehicles,customers)
                 distance_total = cdist(awaiting_customers_position,end_positions, metric='euclidean') + distance_to_go
-                distance_total[:,free_v_index]/=np.array(piority_customer)
+                distance_total[:,free_v_index]/=np.array(piority_customer)[awaiting_customers_index]
                 if len(vehicles)>= len(awaiting_customers):
                     v_indices,c_indices = linear_sum_assignment(distance_total.T)
                 else:
@@ -84,7 +84,7 @@ def base_distance_calculator(vehicles,customers):
             end_positions.append([v.coordX,v.coordY])
             distance_to_go.append(0)
         else:
-            customer_assigned = filter(lambda c: c.id == v.customerId,customers)
+            customer_assigned = list(filter(lambda c: c.id == v.customerId,customers))
             end_positions.append([customer_assigned[0].destinationX,customer_assigned[0].destinationX])
             distance_to_go.append(np.linalg.norm(np.array([v.coordX,v.coordY]-np.array([customer_assigned[0].destinationX,customer_assigned[0].destinationX]))))
     return end_positions, distance_to_go

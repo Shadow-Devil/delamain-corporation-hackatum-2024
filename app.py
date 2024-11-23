@@ -43,7 +43,10 @@ def delete_scenario(id):
 
 @app.route("/api/scenario/<id>", methods=["GET"])
 def get_scenario(id):
-    return scenario_runner_api.get_scenario(id).model_dump()
+    response = scenario_runner_api.get_scenario(id)
+    if response is None:
+        return "Not found", 404
+    return response.model_dump()
 
 @app.route("/api/scenario/", methods=["POST"])
 def create_scenario():
