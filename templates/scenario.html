@@ -1,125 +1,129 @@
 {% extends "base.html" %}
 
 {% block title %}
-Delamain Corporation - Scenario {{ scenario.id }}
+    Delamain Corporation - Scenario {{ scenario.id }}
 {% endblock %}
 
 {% block content %}
-<style>
+    <style>
         #map {
             height: 66.67vh;
         }
-</style>
+    </style>
 
-<div class="container">
-    <h2 class="subtitle">Scenario: {{ scenario.id }}</h2>
-    <button
-            hx-post="{{ url_for("launch_scenario", id=scenario.id) }}"
-            hx-swap="outerHTML"
-            hx-on::before-request="startLoop()"
-            class="button">Start Scenario</button>
-    <div id="map"></div>
-</div>
+    <div class="container">
+        <h2 class="subtitle">Scenario: {{ scenario.id }}</h2>
+        <button
+                hx-post="{{ url_for("launch_scenario", id=scenario.id) }}"
+                hx-swap="outerHTML"
+                hx-on::before-request="startLoop()"
+                class="button">Start Scenario
+        </button>
+        <div id="map" style="margin-bottom: 1em"></div>
+    </div>
 
-<!-- Make sure you put this AFTER Leaflet's CSS -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-     crossorigin="">
-</script>
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin="">
+    </script>
 
-<script>
+    <script>
 
-    var map = L.map('map').setView([{{ centerX }}, {{ centerY }}], 12);
+        var map = L.map('map').setView([{{ centerX }}, {{ centerY }}], 12);
 
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(map);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
 
-    var customIconTaxi = L.icon({
-        iconUrl: 'https://cdn-icons-png.flaticon.com/512/5086/5086932.png',
-        iconSize: [50, 50],
-        iconAnchor: [25, 25],
-        popupAnchor: [0, -25]
-    });
+        var customIconTaxi = L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/5086/5086932.png',
+            iconSize: [50, 50],
+            iconAnchor: [25, 25],
+            popupAnchor: [0, -25]
+        });
 
-    var customIconCustomer = L.icon({
-        iconUrl: 'https://cdn-icons-png.flaticon.com/512/1436/1436300.png',
-        iconSize: [50, 50],
-        iconAnchor: [25, 25],
-        popupAnchor: [0, -25]
-    });
+        var customIconCustomer = L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/1436/1436300.png',
+            iconSize: [50, 50],
+            iconAnchor: [25, 25],
+            popupAnchor: [0, -25]
+        });
 
-    var vehicles = {{ scenario.vehicles|tojson }};
-    var vehicleMap = {};
-    for (const vehicle of vehicles) {
-        var marker = L.marker([vehicle.coordX, vehicle.coordY], {icon: customIconTaxi});
-        marker.addTo(map)
-            .bindPopup(`<b>Vehicle:</b> ${vehicle.id}<br><b>Coordinates:</b> ${vehicle.coordX}, ${vehicle.coordY}`);
-        vehicleMap[vehicle.id] = marker
-    }
-
-
-    var customers = {{ scenario.customers|tojson }};
-    var customerMap = {};
-    for (const customer of customers) {
-        marker = L.marker([customer.coordX, customer.coordY], {icon: customIconCustomer});
-        marker.addTo(map)
-            .bindPopup(`<b>Customer:</b> ${customer.id}<br><b>Coordinates:</b> ${customer.coordX}, ${customer.coordY}`);
-        customerMap[customer.id] = marker;
-        L.polyline([[customer.coordX, customer.coordY], [customer.destinationX, customer.destinationY]], {color: "blue"}).addTo(map);
-    }
-    var lines = {}
-    var refreshIntervalId
-    var lastAssigned = null
-
-    async function startLoop() {
-        await fetch('{{ url_for("assign", id=scenario.id) }}')
-        refreshIntervalId = window.setInterval(updateMap, 500);
-    }
-    function updateMap() {
-        var request = new XMLHttpRequest()
-        request.open("get", '{{ url_for("get_scenario", id=scenario.id) }}', false)
-        request.onreadystatechange = function() {
-            if (this.readyState === 4 && this.status === 200) {
-                var response = JSON.parse(this.responseText);
-                try {
-                if (response.customers.find(c => c.awaitingService) === undefined) {
-                    clearInterval(refreshIntervalId);
-                }
-
-                if (response.vehicles.find(v => v.isAvailable) && response.customers.find(c => c.awaitingService) && (lastAssigned == null || lastAssigned < (Date.now() - 4000))) {
-                    console.log("Assigning again")
-                    var request = new XMLHttpRequest()
-                    request.open("get", '{{ url_for("assign", id=scenario.id) }}', false)
-                    request.send()
-                    lastAssigned = Date.now()
-                }
-                for (const vehicle of response.vehicles) {
-                    if (vehicle.customerId != null && lines[vehicle.id] == null) {
-                        var line = L.polyline([vehicleMap[vehicle.id].getLatLng(), customerMap[vehicle.customerId].getLatLng()], {color: 'red'}).addTo(map);
-                        //console.log(line);
-                        lines[vehicle.id] = line;
-                    }
-                    if (vehicle.customerId != null && L.latLng(vehicle.coordX, vehicle.coordY).equals(customerMap[vehicle.customerId].getLatLng())) {
-                        lines[vehicle.id] = null
-                    }
-                    vehicleMap[vehicle.id].setLatLng([vehicle.coordX, vehicle.coordY]).update()
-
-                    console.log(vehicle.remainingTravelTime)
-                }
-                for (const customer of response.customers) {
-                    customerMap[customer.id].setLatLng([customer.coordX, customer.coordY]).update()
-                }
-            } catch (e) {
-                    console.log(e);
-                clearInterval(refreshIntervalId)
-            }
+        var vehicles = {{ scenario.vehicles|tojson }};
+        var vehicleMap = {};
+        for (const vehicle of vehicles) {
+            var marker = L.marker([vehicle.coordX, vehicle.coordY], {icon: customIconTaxi});
+            marker.addTo(map)
+                .bindPopup(`<b>Vehicle:</b> ${vehicle.id}<br><b>Coordinates:</b> ${vehicle.coordX}, ${vehicle.coordY}`);
+            vehicleMap[vehicle.id] = marker
         }
 
-        };
-        request.send();
 
-    }
-</script>
+        var customers = {{ scenario.customers|tojson }};
+        var customerMap = {};
+        for (const customer of customers) {
+            marker = L.marker([customer.coordX, customer.coordY], {icon: customIconCustomer});
+            marker.addTo(map)
+                .bindPopup(`<b>Customer:</b> ${customer.id}<br><b>Coordinates:</b> ${customer.coordX}, ${customer.coordY}`);
+            customerMap[customer.id] = marker;
+            L.polyline([[customer.coordX, customer.coordY], [customer.destinationX, customer.destinationY]], {color: "blue"}).addTo(map);
+        }
+        var lines = {}
+        var refreshIntervalId
+        var lastAssigned = null
+
+        async function startLoop() {
+            await fetch('{{ url_for("assign", id=scenario.id) }}')
+            refreshIntervalId = window.setInterval(updateMap, 500);
+        }
+
+        function updateMap() {
+            var request = new XMLHttpRequest()
+            request.open("get", '{{ url_for("get_scenario", id=scenario.id) }}', false)
+            request.onreadystatechange = function () {
+                if (this.readyState === 4 && this.status === 200) {
+                    var response = JSON.parse(this.responseText);
+                    try {
+                        if (response.customers.find(c => c.awaitingService) === undefined) {
+                            clearInterval(refreshIntervalId);
+                        }
+                        var alreadyMatchedCustomerIds = new Set(response.vehicles.map(v => v.customerId));
+
+                        if (response.vehicles.find(v => v.isAvailable) && response.customers.find(c => c.awaitingService && !alreadyMatchedCustomerIds.has(c.id)) && (lastAssigned == null || lastAssigned < (Date.now() - 4000))) {
+                            console.log("Assigning again")
+                            var request = new XMLHttpRequest()
+                            request.open("get", '{{ url_for("assign", id=scenario.id) }}', false)
+                            request.send()
+                            lastAssigned = Date.now()
+                        }
+
+                        for (const vehicle of response.vehicles) {
+                            if (vehicle.customerId != null && lines[vehicle.id] == null) {
+                                var line = L.polyline([vehicleMap[vehicle.id].getLatLng(), customerMap[vehicle.customerId].getLatLng()], {color: 'red'}).addTo(map);
+                                //console.log(line);
+                                lines[vehicle.id] = line;
+                            }
+                            if (vehicle.customerId != null && L.latLng(vehicle.coordX, vehicle.coordY).equals(customerMap[vehicle.customerId].getLatLng())) {
+                                lines[vehicle.id] = null
+                            }
+                            vehicleMap[vehicle.id].setLatLng([vehicle.coordX, vehicle.coordY]).update()
+
+                            console.log(vehicle.remainingTravelTime)
+                        }
+                        for (const customer of response.customers) {
+                            customerMap[customer.id].setLatLng([customer.coordX, customer.coordY]).update()
+                        }
+                    } catch (e) {
+                        console.log(e);
+                        clearInterval(refreshIntervalId)
+                    }
+                }
+
+            };
+            request.send();
+
+        }
+    </script>
 {% endblock %}
