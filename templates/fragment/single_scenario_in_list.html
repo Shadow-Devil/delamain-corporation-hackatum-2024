@@ -1,5 +1,13 @@
-<a href="{{ url_for("view_scenario", id=scenario.id) }}"><div class="box">
-    Scenario: {{ scenario.id }} with {{ scenario.vehicles|length }} Vehicles
-    and {{ scenario.customers|length }} Customers
-    <button class="delete" hx-delete="/api/scenario/{{ scenario.id }}" hx-target="closest .box" hx-swap="outerHTML"></button>
-</div></a>
+    <div class="scenario-container">
+
+            <div class="scenario-box"><a href="{{ url_for('view_scenario', id=scenario.id) }}" class="scenario-link">
+                Scenario: {{ scenario.id }} with {{ scenario.vehicles|length }} Vehicles
+                and {{ scenario.customers|length }} Customers
+            </a></div>
+
+        <button class="delete"
+                hx-delete="/api/scenario/{{ scenario.id }}"
+                hx-target="closest .scenario-container"
+                hx-swap="outerHTML">
+        </button>
+    </div>
