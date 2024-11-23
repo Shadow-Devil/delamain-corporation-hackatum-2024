@@ -21,7 +21,7 @@
     <style>
 
         :root[data-theme="light"] {
-            --yellow: #f1ad53;
+            --yellow: #eea53a;
             --white: #ffffff; /*#EFCDD9;/*#eae9fc;*/
             --black: #0e0d2c;
             --red: #e54e8e;
@@ -35,17 +35,18 @@
         }
 
         :root[data-theme="dark"] {
-            --yellow: #f5d5a1;
+            --yellow: #eab66a;
             --white: #ffffff;
             --black: #0e0d2c;
-            --red: #e76aa1;
+            --red: #e54e8e;
             --pink:#bc74bd;
             --purple:#EFCDD9 ;
             --text: #ffffff;
             --background: #0e0d2c;
             --primary: #423bc4;
             --secondary: #001f47;
-            --accent: #003a9e;
+
+            --accent: #2a2581;
         }
 
 
@@ -129,7 +130,7 @@
         }
 
         .delete {
-            background: var(--red);
+            background: var(--yellow);
 
 
             border: none;
@@ -195,7 +196,7 @@
         .control {
             margin-left: 20px;
             margin-bottom: 20px;
-            background-color: var(--background);
+            background-color: var(--background)!important;
             border: 1px solid var(--secondary);
             color: var(--text);
             border-radius: 7px;
@@ -249,7 +250,7 @@
 
         .gradient-text {
         font-weight: bold;
-        background: linear-gradient(to bottom, #ffffff, #619BFFFF);
+        background: linear-gradient(to bottom, #ffffff, #c8daff);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
