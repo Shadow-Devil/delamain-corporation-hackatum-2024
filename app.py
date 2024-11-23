@@ -28,6 +28,10 @@ def view_scenario(id):
         scenario=scenario.model_dump(),
         centerX=(min(xs) + max(xs)) / 2, centerY=(min(ys) + max(ys)) / 2)
 
+@app.route("/api/scenario/<id>", methods=["DELETE"])
+def deleteScenario(id):
+    backend.delete_scenario(id)
+    return ""
 
 if __name__ == "__main__":
     app.config["TEMPLATES_AUTO_RELOAD"] = True
