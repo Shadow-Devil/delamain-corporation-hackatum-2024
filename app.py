@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def view_all_scenarios():
-    return render_template("index.html", scenarios=backend.get_scenarios())
+    return render_template("home.html", scenarios=backend.get_scenarios())
 
 @app.route("/scenarios/<id>")
 def view_scenario(id):
@@ -31,6 +31,10 @@ def view_scenario(id):
 @app.route("/about")
 def about():
     return render_template("about.html")
+
+@app.route("/index")
+def index():
+    return render_template("index.html")
 
 
 if __name__ == "__main__":
