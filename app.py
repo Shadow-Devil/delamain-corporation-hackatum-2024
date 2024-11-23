@@ -37,7 +37,11 @@ def delete_scenario(id):
 def create_scenario():
     vehicles = request.args.get('vehicles', 5, int)
     customers = request.args.get('customers', 10, int)
-    return render_template("single_scenario_in_list.html", scenario=backend.create_scenario(vehicles, customers).model_dump())
+    return render_template("fragment/single_scenario_in_list.html", scenario=backend.create_scenario(vehicles, customers).model_dump())
+
+@app.route("/api/scenario/<id>/launch", methods=["POST"])
+def launch_scenario(id):
+    return render_template("fragment/launch_scenario.html", result=scenario_runner_api.launch_scenario(id))
 
 
 if __name__ == "__main__":
