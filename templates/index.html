@@ -10,13 +10,13 @@ Delamain Corporation - Fleet Manager
     <div class="field is-grouped">
         <!-- TODO validate min 1 max 50 for vehicles and 1 and 200 for customers -->
         <p class="control">
-            <input id="vehicles_post" class="input" type="number" placeholder="Vehicles">
+            <input id="vehicles_post" class="input" type="number">
         </p>
         <p class="control">
-            <input id="customers_post" class="input" type="number" placeholder="Customers">
+            <input id="customers_post" class="input" type="number">
         </p>
         <p class="control">
-            <button id="something" class="button" type="submit" hx-post="/api/scenario" hx-vars="js:{...getScenarioValues()}" hx-target="#scenarios" hx-swap="beforeend">
+            <button id="something" class="button" hx-post="/api/scenario" hx-vars="js:{...getScenarioValues()}" hx-target="#scenarios" hx-swap="beforeend">
                 Add new Scenario
             </button>
         </p>
@@ -30,7 +30,6 @@ Delamain Corporation - Fleet Manager
         <button class="delete" hx-delete="/api/scenario/{{ scenario.id }}" hx-target="closest .box" hx-swap="outerHTML"></button>
     </div>
 {% endfor %}
-</div>
 </div>
 <script>
     function getScenarioValues() {
