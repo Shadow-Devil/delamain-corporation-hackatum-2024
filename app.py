@@ -1,17 +1,17 @@
 from flask import Flask, render_template, request
 
-from backend_requests import backend, scenario_runner_api, controller
+from backend_requests import backend, scenario_runner_api, controller1
 
 app = Flask(__name__)
 
 @app.route("/")
 def view_all_scenarios():
-    return render_template("home.html")
+    return render_template("home.html", scenarios=backend.get_scenarios())
 
 @app.route("/scenarios/<id>")
 def view_scenario(id):
     scenario = scenario_runner_api.get_scenario(id)
-    if scenario is None:
+    if scenario is None or scenario.status == "COMPLETED": # or scenario.status != "CREATED"
         scenario = backend.get_scenario(id)
         scenario_runner_api.initialize_scenario(scenario, None)
     xs = [
@@ -43,7 +43,10 @@ def delete_scenario(id):
 
 @app.route("/api/scenario/<id>", methods=["GET"])
 def get_scenario(id):
-    return scenario_runner_api.get_scenario(id).model_dump()
+    response = scenario_runner_api.get_scenario(id)
+    if response is None:
+        return "Not found", 404
+    return response.model_dump()
 
 @app.route("/api/scenario/", methods=["POST"])
 def create_scenario():
@@ -54,14 +57,26 @@ def create_scenario():
 
 @app.route("/api/scenario/<id>/launch", methods=["POST"])
 def launch_scenario(id):
-    return render_template("fragment/launch_scenario.html", result=scenario_runner_api.launch_scenario(id))
+    return render_template("fragment/launch_scenario.html", result=scenario_runner_api.launch_scenario(id, 0.1))
 
 @app.route("/api/scenario/<id>/assign")
 def assign(id):
-    controller.step(scenario_runner_api.get_scenario(id))
+    #controller.step(scenario_runner_api.get_scenario(id))
+    scenario = scenario_runner_api.get_scenario(id)
+    if not controller1.piority_customer or controller1.piority_id != id:
+        controller1.piority_customer = [1] * len(scenario.customers)
+        controller1.piority_id = id
+    controller1.step(scenario)
     return ""
 
 
 if __name__ == "__main__":
     app.config["TEMPLATES_AUTO_RELOAD"] = True
     app.run(port=5001, debug=True)
+
+# 1. Create in backend => Not in ScenarioRunner
+# 2. Init in ScenarioRunner => Status = CREATED
+# 3. Launch => Status = RUNNING
+# 3.1 Init => ERROR already running
+# 4. Update => Status = RUNNING
+# 5. Launch => Status = RUNNING
