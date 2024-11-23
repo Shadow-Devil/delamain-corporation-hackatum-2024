@@ -21,20 +21,28 @@
     <style>
 
         :root[data-theme="light"] {
-            --yellow: #fce4d4;
-            --white: #fbfbfe;
-            --text: #040316;
-            --background: #fbfbfe;
+            --yellow: #f1ad53;
+            --white: #ffffff; /*#EFCDD9;/*#eae9fc;*/
+            --black: #0e0d2c;
+            --red: #e54e8e;
+            --purple:#bc74bd;
+            --pink:#EFCDD9 ;
+            --text: #221f69;
+            --background: #ffffff; /*#fbfbfe;*/
             --primary: #423bc4;
             --secondary: #b8d7ff;
             --accent: #619bff;
         }
 
         :root[data-theme="dark"] {
-            --yellow: #fce4d4;
-            --white: #eae9fc;
-            --text: #eae9fc;
-            --background: #010104;
+            --yellow: #f5d5a1;
+            --white: #ffffff;
+            --black: #0e0d2c;
+            --red: #e76aa1;
+            --pink:#bc74bd;
+            --purple:#EFCDD9 ;
+            --text: #ffffff;
+            --background: #0e0d2c;
             --primary: #423bc4;
             --secondary: #001f47;
             --accent: #003a9e;
@@ -63,6 +71,7 @@
             text-indent: 20px; /* Adds a 20px indent; adjust as needed */
             margin-top: 20px; /* Adds 20px of space below */
             font-size: 2em; /* Makes the text bigger; you can adjust the value as needed */
+            font-weight: bold;
         }
 
         header {
@@ -120,18 +129,38 @@
         }
 
         .delete {
-    background: red;
-    border: none;
-    color: white;
-    font-size: 1rem;
-    padding: 8px;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+            background: var(--red);
 
+
+            border: none;
+            color: white;
+            font-size: 1rem;
+            padding: 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .start {
+            background: var(--background);
+            margin-left: 20px;
+            margin-bottom: 20px;
+            color: var(--text);
+            border: 1px solid var(--secondary);
+
+
+        }
+
+        .start:hover {
+            background-color: var(--accent);
+
+        }
+
+    .container:not(.is-max-tablet):not(.is-max-desktop):not(.is-max-widescreen) {
+        max-width: 100%;
+    }
 
         #scenarios {
             display: flex;
@@ -140,17 +169,17 @@
         }
 
         .scenario-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-evenly; /* Ensure the delete button is always on the right */
-    gap: 10px;
-    background-color: var(--background);
-    border: none;
-    color: var(--text);
-    padding: 15px;
-    border-radius: 5px;
-    margin-left: 20px;
-    margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-evenly; /* Ensure the delete button is always on the right */
+            gap: 10px;
+            background-color: var(--background);
+            border: none;
+            color: var(--text);
+            padding: 15px;
+            border-radius: 5px;
+            margin-left: 20px;
+            margin-bottom: 20px;
         }
 
         .scenario-box {
@@ -158,10 +187,10 @@
         }
 
         .scenario-link {
-    text-decoration: none;
-    color: inherit;
-    flex: 1; /* Allows the link to take up all the available space, pushing the button to the right */
-}
+            text-decoration: none;
+            color: inherit;
+            flex: 1; /* Allows the link to take up all the available space, pushing the button to the right */
+        }
 
         .control {
             margin-left: 20px;
@@ -200,9 +229,13 @@
             color: var(--text);
             padding: 15px;
             border-radius: 5px;
-            {#margin-left: 20px;#}
-            {#margin-bottom: 20px;#}
-            width: 75%;
+        {
+            #margin-left: 20px;
+            #
+        } {
+            #margin-bottom: 20px;
+            #
+        } width: 75%;
         }
 
         .scenario-box:hover {
@@ -213,6 +246,13 @@
             color: var(--text);
             text-decoration: none;
         }
+
+        .gradient-text {
+        font-weight: bold;
+        background: linear-gradient(to bottom, #ffffff, #619BFFFF);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
 
         .box a:hover {
             /*color: var(--primary);*/
@@ -233,7 +273,7 @@
 
         /* Set the color of the sun/moon icons to yellow */
         .theme-icon {
-            color: yellow;
+            color: var(--yellow);
         }
     </style>
 </head>
@@ -242,9 +282,9 @@
 <header>
     <img src="{{ url_for('static', filename='images/Logo.png') }}" alt="Delamain Logo"
          style="height: 60px;"> <!-- Logo on the left of the header -->
-    <a href="/" class="header-title">elamain Corporation</a> <!-- Company name directly next to the logo -->
+    <a href="/" class="header-title gradient-text">elamain Corporation</a> <!-- Company name directly next to the logo -->
     <nav class="navbar-menu-right">
-        <a class="navbar-item theme-icon" href="#" id="theme-toggle">&#9728;</a> <!-- Sun/Moon symbol -->
+        <a class="navbar-item theme-icon" href="#" id="theme-toggle">&#9790;</a> <!-- Sun/Moon symbol -->
         <a class="navbar-item" href="/about">About</a>
     </nav>
 </header>
