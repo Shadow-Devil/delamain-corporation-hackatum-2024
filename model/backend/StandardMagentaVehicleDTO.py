@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 
 
 @dataclass
@@ -6,13 +7,13 @@ class StandardMagentaVehicleDTO:
     """
     The vehicle data transfer object.
     """
-    activeTime: int | None
-    coordX: float | None
-    coordY: float | None
-    customerId: str | None
-    distanceTravelled: float | None
-    id: str | None
-    isAvailable: bool | None
-    numberOfTrips: int | None
-    remainingTravelTime: int | None
-    vehicleSpeed: float | None
+    activeTime: Optional[int]
+    coordX: Optional[float]
+    coordY: Optional[float]
+    customerId: Optional[str]
+    distanceTravelled: Optional[float]
+    id: Optional[str]
+    isAvailable: Optional[bool]
+    numberOfTrips: Optional[int]
+    remainingTravelTime: Optional[int]
+    vehicleSpeed: Optional[float]

@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel
 
 from model.backend.CustomerDTO import CustomerDTO
@@ -9,8 +11,8 @@ class ScenarioDTO(BaseModel):
     The scenario data transfer object.
     """
     customers: list[CustomerDTO]
-    endTime: str | None
-    id: str | None
-    startTime: str | None
-    status: str | None
+    endTime: Optional[str]
+    id: Optional[str]
+    startTime: Optional[str]
+    status: Optional[str]
     vehicles: list[StandardMagentaVehicleDTO]
