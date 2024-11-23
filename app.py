@@ -1,17 +1,19 @@
 from flask import Flask, render_template
 
-import backend_requests.backend
+from backend_requests import backend, scenario_runner_api
 
 app = Flask(__name__)
 
-
 @app.route("/")
 def view_all_scenarios():
-    return render_template("index.html", scenarios=backend_requests.backend.get_scenarios())
+    return render_template("index.html", scenarios=backend.get_scenarios())
 
 @app.route("/scenarios/<id>")
 def view_scenario(id):
-    scenario = backend_requests.backend.get_scenario(id)
+    scenario = scenario_runner_api.get_scenario(id)
+    if scenario is None:
+        scenario = backend.get_scenario(id)
+        scenario_runner_api.initialize_scenario(scenario, None)
     xs = [
         *map(lambda v: v.coordX, scenario.vehicles),
         *map(lambda c: c.coordX, scenario.customers),

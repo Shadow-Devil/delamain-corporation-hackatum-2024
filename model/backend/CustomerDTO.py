@@ -1,8 +1,7 @@
-from dataclasses import dataclass
+from pydantic import BaseModel
 
 
-@dataclass
-class CustomerDTO:
+class CustomerDTO(BaseModel):
     """
     The customer data transfer object.
     """

@@ -1,8 +1,7 @@
-from dataclasses import dataclass
+from pydantic import BaseModel
 
 
-@dataclass
-class VehicleDataDto:
+class VehicleDataDto(BaseModel):
     """
     The vehicle data transfer object.
     """

@@ -1,16 +1,16 @@
-from dataclasses import dataclass
-from CustomerDTO import CustomerDTO
-from StandardMagentaVehicleDTO import StandardMagentaVehicleDTO
+from pydantic import BaseModel
+
+from model.backend.CustomerDTO import CustomerDTO
+from model.backend.StandardMagentaVehicleDTO import StandardMagentaVehicleDTO
 
 
-@dataclass
-class ScenarioDTO:
+class ScenarioDTO(BaseModel):
     """
     The scenario data transfer object.
     """
-    customers: [CustomerDTO]
-    endTime: str
-    id: str
-    startTime: str
-    status: str
-    vehicles: [StandardMagentaVehicleDTO]
+    customers: list[CustomerDTO]
+    endTime: str | None
+    id: str | None
+    startTime: str | None
+    status: str | None
+    vehicles: list[StandardMagentaVehicleDTO]

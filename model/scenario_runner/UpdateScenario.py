@@ -1,6 +1,7 @@
 from typing import Optional
-from VehicleUpdate import VehicleUpdate
 from pydantic import BaseModel
+
+from model.scenario_runner.VehicleUpdate import VehicleUpdate
 
 
 class UpdateScenario(BaseModel):
