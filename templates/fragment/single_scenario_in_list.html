@@ -5,10 +5,9 @@
                 and {{ scenario.customers|length }} Customers
             </a></div>
 
-        <button class="delete"
+        <button class="delete button mb-3 ml-3"
                 hx-delete="/api/scenario/{{ scenario.id }}"
                 hx-target="closest .scenario-container"
-                hx-swap="outerHTML"
-        class="button mb-3 ml-3">
+                hx-swap="outerHTML">
         </button>
     </div>

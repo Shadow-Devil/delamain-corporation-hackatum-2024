@@ -94,8 +94,8 @@ Delamain Corporation - Scenario {{ scenario.id }}
                 try {
                 if (response.customers.find(c => c.awaitingService) === undefined) {
                     console.log("DONE!")
-                            clearInterval(refreshIntervalId);
-                        }
+                    clearInterval(refreshIntervalId);
+                }
                 var alreadyMatchedCustomerIds = new Set(response.vehicles.map(v => v.customerId));
 
 
