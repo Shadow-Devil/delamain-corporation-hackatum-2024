@@ -10,7 +10,7 @@
 <h1 class="title">Delamain Corporation Fleet Manager</h1>
 <h2 class="subtitle">All Scenarios</h2>
 {% for scenario in scenarios %}
-	<div class="box">Scenario: {{ scenario.id }}</div>
+	<div class="box"><a href="{{ url_for("view_scenario", id=scenario.id) }}">Scenario: {{ scenario.id }}</a></div>
     <br/>
 {% endfor %}
 </div>

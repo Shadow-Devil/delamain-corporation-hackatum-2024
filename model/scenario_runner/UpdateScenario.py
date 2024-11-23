@@ -1,10 +1,9 @@
-from dataclasses import dataclass
 from typing import Optional
 from VehicleUpdate import VehicleUpdate
+from pydantic import BaseModel
 
 
-@dataclass
-class UpdateScenario:
+class UpdateScenario(BaseModel):
     """
     Represents an update to a scenario, focusing on vehicles.
     """
