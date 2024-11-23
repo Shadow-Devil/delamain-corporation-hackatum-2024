@@ -1,9 +1,8 @@
-from dataclasses import dataclass
+from pydantic import BaseModel
 from typing import Optional
 
 
-@dataclass
-class Vehicle:
+class Vehicle(BaseModel):
     """
     Represents a vehicle in the scenario.
     """

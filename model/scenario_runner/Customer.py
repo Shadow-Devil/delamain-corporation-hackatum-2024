@@ -1,9 +1,8 @@
-from dataclasses import dataclass
 from typing import Optional
+from pydantic import BaseModel
 
 
-@dataclass
-class Customer:
+class Customer(BaseModel):
     """
     Represents a customer in the scenario.
     """
