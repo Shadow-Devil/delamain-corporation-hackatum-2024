@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def view_all_scenarios():
-    return render_template("index.html", scenarios=backend_requests.backend.get_all_scenarios())
+    return render_template("index.html", scenarios=backend_requests.backend.get_scenarios())
 
 @app.route("/scenarios/<id>")
 def view_scenario(id):
@@ -23,9 +23,10 @@ def view_scenario(id):
         *map(lambda c: c.destinationY, scenario.customers)]
     return render_template(
         "scenario.html",
-        scenario=scenario,
+        scenario=scenario.model_dump(),
         centerX=(min(xs) + max(xs)) / 2, centerY=(min(ys) + max(ys)) / 2)
 
 
 if __name__ == "__main__":
+    app.config["TEMPLATES_AUTO_RELOAD"] = True
     app.run(debug=True)
