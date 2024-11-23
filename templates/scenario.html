@@ -70,32 +70,39 @@ Delamain Corporation - Scenario {{ scenario.id }}
         L.polyline([[customer.coordX, customer.coordY], [customer.destinationX, customer.destinationY]], {color: "blue"}).addTo(map);
     }
     var lines = {}
+    var refreshIntervalId
 
     async function startLoop() {
         await fetch('{{ url_for("assign", id=scenario.id) }}')
-        window.setInterval(updateMap, 500);
+        refreshIntervalId = window.setInterval(updateMap, 500);
     }
     async function updateMap() {
-        var response = await (await fetch('{{ url_for("get_scenario", id=scenario.id) }}')).json();
-
-        if (response.vehicles.find(v => v.isAvailable)) {
-            console.log("Assigning again")
-            await fetch('{{ url_for("assign", id=scenario.id) }}')
-        }
-        for (const vehicle of response.vehicles) {
-            if (vehicle.customerId != null && lines[vehicle.id] == null) {
-                var line = L.polyline([vehicleMap[vehicle.id].getLatLng(), customerMap[vehicle.customerId].getLatLng()], {color: 'red'}).addTo(map);
-                console.log(line);
-                lines[vehicle.id] = line;
+        try {
+            var response = await (await fetch('{{ url_for("get_scenario", id=scenario.id) }}')).json();
+            if (response.customers.find(c => c.awaitingService) === undefined) {
+                clearInterval(refreshIntervalId);
             }
-            vehicleMap[vehicle.id].setLatLng([vehicle.coordX, vehicle.coordY]).update()
 
-            console.log(vehicle.remainingTravelTime)
-        }
-        for (const customer of response.customers) {
-            customerMap[customer.id].setLatLng([customer.coordX, customer.coordY]).update()
-        }
+            if (response.vehicles.find(v => v.isAvailable)) {
+                console.log("Assigning again")
+                await fetch('{{ url_for("assign", id=scenario.id) }}')
+            }
+            for (const vehicle of response.vehicles) {
+                if (vehicle.customerId != null && lines[vehicle.id] == null) {
+                    var line = L.polyline([vehicleMap[vehicle.id].getLatLng(), customerMap[vehicle.customerId].getLatLng()], {color: 'red'}).addTo(map);
+                    console.log(line);
+                    lines[vehicle.id] = line;
+                }
+                vehicleMap[vehicle.id].setLatLng([vehicle.coordX, vehicle.coordY]).update()
 
+                console.log(vehicle.remainingTravelTime)
+            }
+            for (const customer of response.customers) {
+                customerMap[customer.id].setLatLng([customer.coordX, customer.coordY]).update()
+            }
+        } catch (e) {
+            clearInterval(refreshIntervalId)
+        }
     }
 </script>
 {% endblock %}

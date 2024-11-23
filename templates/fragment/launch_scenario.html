@@ -1,5 +1,4 @@
     <button
             hx-post="{{ url_for("launch_scenario", id=result.id) }}"
             hx-swap="outerHTML"
-            hx-on::before-request="startLoop()"
             class="button">{{ result.message }}</button>
