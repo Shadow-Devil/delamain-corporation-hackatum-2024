@@ -4,7 +4,7 @@ from typing import Any
 from model.scenario_runner.Scenario import Scenario
 from model.scenario_runner.UpdateScenario import UpdateScenario
 
-URL = 'http://localhost:8080'
+URL = 'http://localhost:8090'
 
 
 # Scenarios
