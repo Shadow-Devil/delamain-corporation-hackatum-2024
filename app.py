@@ -55,6 +55,7 @@ def launch_scenario(id):
 @app.route("/api/scenario/<id>/assign")
 def assign(id):
     controller.step(scenario_runner_api.get_scenario(id))
+    return ""
 
 
 if __name__ == "__main__":

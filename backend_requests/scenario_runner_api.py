@@ -22,8 +22,9 @@ def initialize_scenario(payload: Scenario, db_scenario_id: str = None):
         raise Exception(response.text)
 
 
-def update_scenario(scenario_id: str, payload: UpdateScenario) -> Scenario:
-    return Scenario.model_validate(requests.put(f'{URL}/Scenarios/update_scenario/{scenario_id}', json=payload.json).json())
+def update_scenario(scenario_id: str, payload: UpdateScenario) -> Any:
+
+    return requests.put(f'{URL}/Scenarios/update_scenario/{scenario_id}', json=payload.model_dump()).json()
 
 
 # Runner
