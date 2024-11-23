@@ -71,25 +71,28 @@ Delamain Corporation - Scenario {{ scenario.id }}
     var lines = {}
 
     async function startLoop() {
-        fetch('{{ url_for("assign", id=scenario.id) }}')
+        await fetch('{{ url_for("assign", id=scenario.id) }}')
         window.setInterval(updateMap, 500);
     }
-    function updateMap() {
-        fetch('{{ url_for("get_scenario", id=scenario.id) }}').then(e => e.json().then(response => {
+    async function updateMap() {
+        var response = await (await fetch('{{ url_for("get_scenario", id=scenario.id) }}')).json();
 
-            console.log(response.vehicles[0].coordX, response.vehicles[0].coordY);
-            for (const vehicle of response.vehicles) {
-                if (vehicle.customerId != null && lines[vehicle.id] == null) {
-                    var line = L.polyline([vehicleMap[vehicle.id].getLatLng(), customerMap[vehicle.customerId].getLatLng()], {color: 'red'}).addTo(map);
-                    console.log(line);
-                    lines[vehicle.id] = line;
-                }
-                vehicleMap[vehicle.id].setLatLng([vehicle.coordX, vehicle.coordY]).update()
+        if (response.vehicles.find(v => v.isAvailable)) {
+            console.log("Assigning again")
+            await fetch('{{ url_for("assign", id=scenario.id) }}')
+        }
+        for (const vehicle of response.vehicles) {
+            if (vehicle.customerId != null && lines[vehicle.id] == null) {
+                var line = L.polyline([vehicleMap[vehicle.id].getLatLng(), customerMap[vehicle.customerId].getLatLng()], {color: 'red'}).addTo(map);
+                console.log(line);
+                lines[vehicle.id] = line;
             }
-            for (const customer of response.customers) {
-                customerMap[customer.id].setLatLng([customer.coordX, customer.coordY]).update()
-            }
-        }));
+            vehicleMap[vehicle.id].setLatLng([vehicle.coordX, vehicle.coordY]).update()
+        }
+        for (const customer of response.customers) {
+            customerMap[customer.id].setLatLng([customer.coordX, customer.coordY]).update()
+        }
+
     }
 </script>
 {% endblock %}

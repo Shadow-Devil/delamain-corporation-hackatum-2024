@@ -1,7 +1,7 @@
+from backend_requests.scenario_runner_api import update_scenario
 from model.backend.ScenarioDTO import ScenarioDTO
 from model.scenario_runner.UpdateScenario import UpdateScenario
 from model.scenario_runner.VehicleUpdate import VehicleUpdate
-from scenario_runner_api import update_scenario
 from scipy.optimize import linear_sum_assignment
 from scipy.spatial.distance import cdist
 import numpy as np
@@ -84,10 +84,12 @@ def base_distance_calculator(vehicles,customers):
             customer_assigned = filter(lambda c: c.id == v.customerId,customers)
             end_positions.append([customer_assigned[0].destinationX,customer_assigned[0].destinationX])
             distance_to_go.append(np.linalg.norm(np.array([v.coordX,v.coordY]-np.array([customer_assigned[0].destinationX,customer_assigned[0].destinationX]))))
+    return end_positions, distance_to_go
 
 def step(scenario: ScenarioDTO):
     customers = list(filter(lambda c: c.awaitingService, scenario.customers))
     updates = []
-    if not customers and any([v.isAvailable for v in scenario.vehicles]):
-        updates = assign(scenario)
+    if customers and any([v.isAvailable for v in scenario.vehicles]):
+        updates = assign(scenario,0.1)
+    print(str(updates))
     update_scenario(scenario.id, UpdateScenario(vehicles=updates))

@@ -1,12 +1,12 @@
 from flask import Flask, render_template, request
 
-from backend_requests import backend, scenario_runner_api, controller
+from backend_requests import backend, scenario_runner_api, controller, controller1
 
 app = Flask(__name__)
 
 @app.route("/")
-def view_all_scenarios():
-    return render_template("home.html", scenarios=backend.get_scenarios())
+def home():
+    return render_template("home.html")
 
 @app.route("/scenarios/<id>")
 def view_scenario(id):
@@ -34,7 +34,7 @@ def about():
 
 @app.route("/index")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", scenarios=backend.get_scenarios())
 
 @app.route("/api/scenario/<id>", methods=["DELETE"])
 def delete_scenario(id):
@@ -58,7 +58,11 @@ def launch_scenario(id):
 
 @app.route("/api/scenario/<id>/assign")
 def assign(id):
-    controller.step(scenario_runner_api.get_scenario(id))
+    #controller.step(scenario_runner_api.get_scenario(id))
+    scenario = scenario_runner_api.get_scenario(id)
+    if not controller1.piority_customer:
+        controller1.piority_customer = [1] * len(scenario.customers)
+    controller1.step(scenario)
     return ""
 
 

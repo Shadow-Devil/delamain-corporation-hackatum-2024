@@ -31,7 +31,10 @@ def create_scenario(vehicles: int, customers: int):
 
 
 def get_scenarios() -> List[ScenarioDTO]:
-    return list(map(ScenarioDTO.model_validate, requests.get(f'{URL}/scenarios').json()))
+    response = requests.get(f'{URL}/scenarios')
+    if response.status_code != 200:
+        raise Exception(response.text)
+    return list(map(ScenarioDTO.model_validate, response.json()))
 
 
 def delete_scenario(scenario_id: str) -> None:
