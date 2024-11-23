@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request
 
-from backend_requests import backend, scenario_runner_api, controller, controller1
+from backend_requests import backend, scenario_runner_api, controller1
 
 app = Flask(__name__)
 
@@ -11,7 +11,7 @@ def home():
 @app.route("/scenarios/<id>")
 def view_scenario(id):
     scenario = scenario_runner_api.get_scenario(id)
-    if scenario is None:
+    if scenario is None or scenario.status == "COMPLETED": # or scenario.status != "CREATED"
         scenario = backend.get_scenario(id)
         scenario_runner_api.initialize_scenario(scenario, None)
     xs = [
@@ -72,3 +72,10 @@ def assign(id):
 if __name__ == "__main__":
     app.config["TEMPLATES_AUTO_RELOAD"] = True
     app.run(port=5001, debug=True)
+
+# 1. Create in backend => Not in ScenarioRunner
+# 2. Init in ScenarioRunner => Status = CREATED
+# 3. Launch => Status = RUNNING
+# 3.1 Init => ERROR already running
+# 4. Update => Status = RUNNING
+# 5. Launch => Status = RUNNING
