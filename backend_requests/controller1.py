@@ -1,5 +1,8 @@
+from typing import List
+
 from backend_requests.scenario_runner_api import update_scenario
 from model.backend.ScenarioDTO import ScenarioDTO
+from model.backend.StandardMagentaVehicleDTO import StandardMagentaVehicleDTO
 from model.scenario_runner.UpdateScenario import UpdateScenario
 from model.scenario_runner.VehicleUpdate import VehicleUpdate
 from scipy.optimize import linear_sum_assignment
@@ -10,7 +13,7 @@ piority_customer=[] # muss auf leer setzen wenn senario wechselt
 vehicle_queue = []
 waiting_customer = [] # assigned but waiting
 
-def assign(scenario: ScenarioDTO,ratio:float) -> list[VehicleUpdate]:
+def assign(scenario: ScenarioDTO,ratio:float) -> list[StandardMagentaVehicleDTO]:
     customers = scenario.customers
     vehicles = scenario.vehicles
     if len(vehicles)>= len(customers):
@@ -88,8 +91,9 @@ def base_distance_calculator(vehicles,customers):
 
 def step(scenario: ScenarioDTO):
     customers = list(filter(lambda c: c.awaitingService, scenario.customers))
-    updates = []
+    updates: List[StandardMagentaVehicleDTO] = []
     if customers and any([v.isAvailable for v in scenario.vehicles]):
         updates = assign(scenario,0.1)
-    print(str(updates))
-    update_scenario(scenario.id, UpdateScenario(vehicles=updates))
+    updates_ = map(lambda x: VehicleUpdate.model_validate(x.model_dump()), updates)
+    print(str(updates_))
+    update_scenario(scenario.id, UpdateScenario(vehicles=updates_))

@@ -88,6 +88,8 @@ Delamain Corporation - Scenario {{ scenario.id }}
                 lines[vehicle.id] = line;
             }
             vehicleMap[vehicle.id].setLatLng([vehicle.coordX, vehicle.coordY]).update()
+
+            console.log(vehicle.remainingTravelTime)
         }
         for (const customer of response.customers) {
             customerMap[customer.id].setLatLng([customer.coordX, customer.coordY]).update()
