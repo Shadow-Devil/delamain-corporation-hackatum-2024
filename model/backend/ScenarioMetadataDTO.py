@@ -1,9 +1,8 @@
-from dataclasses import dataclass
+from pydantic import BaseModel
 from VehicleDataDto import VehicleDataDto
 
 
-@dataclass
-class ScenarioMetadataDTO:
+class ScenarioMetadataDTO(BaseModel):
     """
     The scenario metadata data transfer object.
     """
