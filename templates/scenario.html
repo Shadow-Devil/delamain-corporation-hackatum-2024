@@ -12,12 +12,14 @@ Delamain Corporation - Scenario {{ scenario.id }}
 </style>
 
 <div class="container">
-    <h2 class="subtitle">Scenario: {{ scenario.id }}</h2>
+    <h2 class="subtitle">Scenario: {{ scenario.id }} with {{ scenario.vehicles|length }} Vehicles
+                and {{ scenario.customers|length }} Customers</h2>
+    <p class="control">
     <button
             hx-post="{{ url_for("launch_scenario", id=scenario.id) }}"
             hx-swap="outerHTML"
             hx-on::before-request="startLoop()"
-            class="button">Start Scenario</button>
+            class="button">Start Scenario</button> </p>
     <div id="map"></div>
 </div>
 

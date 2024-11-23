@@ -1,21 +1,36 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="hero-container" style="position: relative; margin: 0;top: 0; width: 100vw; height: calc(100vh - 80px); margin: 0; background-image: url('{{ url_for('static', filename='images/Munich4.png') }}'); background-size: cover; background-position: center;">
-    <!-- Button positioned in the middle of the image -->
-    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-        <a href="/index" class="button is-large" style="background-color: var(--primary); color: var(--white); border: none;">
-            Fleet Manager
+<div class="hero-container"
+     style="position: relative; margin: 0; top: 0; width: 100vw; height: calc(100vh - 80px); margin: 0; background-image: url('{{ url_for('static', filename='images/Munich4.png') }}'); background-size: cover; background-position: center;">
+    <!-- Grouped texts and button in a container -->
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+        <h1 style="font-size: 5rem; font-weight: bold; color: var(--white);">Manage Your Fleet of Robotaxis with Ease
+            !</h1>
+        <p style="font-size: 2.5rem;font-weight: bold; color:var(--white);">Experience the future of transportation
+            management today.</p>
+        <a href="/index" class="button is-large"
+           style="background-color: var(--primary); color: var(--white); border: none; margin-top: 20px;">
+            → Try it here !
         </a>
     </div>
 </div>
 <!-- Below the image, add some introductory text -->
-<div class="container content" style="text-align: center; margin-top: 40px;">
-    <h2 class="subtitle">Welcome to Delamain Corporation Fleet Manager</h2>
+<div class="container content" style="text-align: center; color: var(--text); margin-top: 80px;margin-bottom: 40px;">
+    <h2 class="subtitle">Welcome to the Delamain Corporation Fleet Manager !</h2>
     <p>
-        We specialize in efficient and state-of-the-art fleet management solutions for smart transportation. With advanced
-        AI and automation, our goal is to ensure a smooth and effective experience for every driver and vehicle owner.
-        Explore our fleet to see the innovation in action!
+        TODO
+    </p>
+    <p>
+        TEXT</p>
+    <p>
+        HIER</p>
+    <p>
+        ÜBER</p>
+    <p>
+        PROJEKT</p>
+    <p>
+        .............
     </p>
 </div>
 {% endblock %}
@@ -28,6 +43,7 @@
         height: 100%;
         overflow-x: hidden;
     }
+
     .hero-container {
         position: relative; /* Use relative positioning instead of absolute */
         width: 100vw;
