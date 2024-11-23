@@ -10,6 +10,22 @@
 <div class="container">
 <h1 class="title m-2 has-text-centered">Delamain Corporation Fleet Manager</h1>
     <h2 class="subtitle">All Scenarios</h2>
+<div>
+    <div class="field is-grouped">
+        <p class="control">
+            <input id="vehicles_post" class="input" type="number" placeholder="Vehicles">
+        </p>
+        <p class="control">
+            <input id="customers_post" class="input" type="number" placeholder="Customers">
+        </p>
+        <p class="control">
+            <button id="something" class="button" type="submit" hx-post="/api/scenario" hx-vars="js:{...getScenarioValues()}" hx-target="#scenarios" hx-swap="beforeend">
+                Add new Scenario
+            </button>
+        </p>
+    </div>
+    </div>
+<div id="scenarios" class="m-2">
 {% for scenario in scenarios %}
 	<div class="box"><a href="{{ url_for("view_scenario", id=scenario.id) }}">
         Scenario: {{ scenario.id }} with {{ scenario.vehicles|length }} Vehicles
@@ -18,5 +34,14 @@
     </div>
 {% endfor %}
 </div>
+</div>
+<script>
+    function getScenarioValues() {
+        return {
+            vehicles: document.getElementById('vehicles_post').value,
+            customers: document.getElementById('customers_post').value
+        }
+    }
+</script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 
 from backend_requests import backend, scenario_runner_api
 
@@ -29,10 +29,21 @@ def view_scenario(id):
         centerX=(min(xs) + max(xs)) / 2, centerY=(min(ys) + max(ys)) / 2)
 
 @app.route("/api/scenario/<id>", methods=["DELETE"])
-def deleteScenario(id):
+def delete_scenario(id):
     backend.delete_scenario(id)
     return ""
 
+@app.route("/api/scenario/", methods=["POST"])
+def create_scenario():
+    vehicles = request.args.get('vehicles', 5, int)
+    customers = request.args.get('customers', 10, int)
+    return render_template("fragment/single_scenario_in_list.html", scenario=backend.create_scenario(vehicles, customers).model_dump())
+
+@app.route("/api/scenario/<id>/launch", methods=["POST"])
+def launch_scenario(id):
+    return render_template("fragment/launch_scenario.html", result=scenario_runner_api.launch_scenario(id))
+
+
 if __name__ == "__main__":
     app.config["TEMPLATES_AUTO_RELOAD"] = True
-    app.run(debug=True)
+    app.run(port=5001, debug=True)
