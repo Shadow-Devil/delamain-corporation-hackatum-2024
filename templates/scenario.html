@@ -12,7 +12,7 @@ Delamain Corporation - Scenario {{ scenario.id }}
 </style>
 
 <div class="container">
-    <h2 class="subtitle">{{ scenario.id }}</h2>
+    <h2 class="subtitle">Scenario: {{ scenario.id }}</h2>
     <button
             hx-post="{{ url_for("launch_scenario", id=scenario.id) }}"
             hx-swap="outerHTML"
