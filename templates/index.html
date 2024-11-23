@@ -10,10 +10,10 @@ Delamain Corporation - Fleet Manager
     <div class="field is-grouped">
         <!-- TODO validate min 1 max 50 for vehicles and 1 and 200 for customers -->
         <p class="control">
-            <input id="vehicles_post" class="input" type="number">
+            <input id="vehicles_post" class="input" type="number" placeholder="Vehicles">
         </p>
         <p class="control">
-            <input id="customers_post" class="input" type="number">
+            <input id="customers_post" class="input" type="number" placeholder="Customers">
         </p>
         <p class="control">
             <button id="something" class="button" hx-post="/api/scenario" hx-vars="js:{...getScenarioValues()}"
