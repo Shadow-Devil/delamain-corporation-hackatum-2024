@@ -63,8 +63,9 @@ def launch_scenario(id):
 def assign(id):
     #controller.step(scenario_runner_api.get_scenario(id))
     scenario = scenario_runner_api.get_scenario(id)
-    if not controller1.piority_customer:
+    if not controller1.piority_customer or controller1.piority_id != id:
         controller1.piority_customer = [1] * len(scenario.customers)
+        controller1.piority_id = id
     controller1.step(scenario)
     return ""
 
