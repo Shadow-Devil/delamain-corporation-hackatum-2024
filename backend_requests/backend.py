@@ -23,8 +23,11 @@ def get_scenario_metadata(scenario_id: str) -> ScenarioMetadataDTO:
     return ScenarioMetadataDTO.model_validate(requests.get(f'{URL}/scenario/{scenario_id}/metadata').json())
 
 
-def create_scenario() -> ScenarioDTO:
-    return ScenarioDTO.model_validate(requests.post(f'{URL}/scenario/create').json())
+def create_scenario(vehicles: int, customers: int):
+    return ScenarioDTO.model_validate(requests.post(f'{URL}/scenario/create', params={
+        "numberOfVehicles": vehicles,
+        "numberOfCustomers": customers
+    }).json())
 
 
 def get_scenarios() -> List[ScenarioDTO]:
