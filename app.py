@@ -43,6 +43,10 @@ def create_scenario():
 def launch_scenario(id):
     return render_template("fragment/launch_scenario.html", result=scenario_runner_api.launch_scenario(id))
 
+@app.route("/about")
+def about():
+    return render_template("about.html")
+
 
 if __name__ == "__main__":
     app.config["TEMPLATES_AUTO_RELOAD"] = True

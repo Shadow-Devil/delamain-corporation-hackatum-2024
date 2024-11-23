@@ -1,14 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Delamain Corporation</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
-    <script src="https://unpkg.com/htmx.org@2.0.3" integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq" crossorigin="anonymous"></script>
-</head>
-<body>
-<div class="container">
-<h1 class="title m-2 has-text-centered">Delamain Corporation Fleet Manager</h1>
+{% extends "base.html" %}
+
+{% block title %}
+Delamain Corporation - Fleet Manager
+{% endblock %}
+
+{% block content %}
     <h2 class="subtitle">All Scenarios</h2>
 <div>
     <div class="field is-grouped">
@@ -44,5 +40,4 @@
         }
     }
 </script>
-</body>
-</html>
+{% endblock %}
