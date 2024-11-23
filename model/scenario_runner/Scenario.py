@@ -2,8 +2,8 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from my_types.models.Customer import Customer
-from my_types.models.Vehicle import Vehicle
+from model.scenario_runner.Customer import Customer
+from model.scenario_runner.Vehicle import Vehicle
 
 
 class Scenario(BaseModel):

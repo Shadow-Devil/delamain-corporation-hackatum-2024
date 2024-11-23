@@ -3,19 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <title>Delamain Corporation</title>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css"
-    >
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
 </head>
 <body>
 <div class="container">
 <h1 class="title">Delamain Corporation Fleet Manager</h1>
 <h2 class="subtitle">All Scenarios</h2>
 {% for scenario in scenarios %}
-	<div class="box">Scenario:
-    {{ scenario.id }}
-    </div>
+	<div class="box">Scenario: {{ scenario.id }}</div>
     <br/>
 {% endfor %}
 </div>
