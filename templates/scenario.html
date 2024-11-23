@@ -16,10 +16,10 @@ Delamain Corporation - Scenario {{ scenario.id }}
                 and {{ scenario.customers|length }} Customers</h2>
 
     <button
-            hx-post="{{ url_for("launch_scenario", id=scenario.id) }}"
-            hx-swap="outerHTML"
-            hx-on::before-request="startLoop()"
+            onclick="startLoop()" id="scenario_run_btn"
             class="button mb-3 ml-3">Start Scenario</button>
+    <input type="range" value="50" min="1" max="100" id="sliderWithValue" oninput="document.getElementById('sliderID').innerHTML = this.value / 100">
+    <label id="sliderID">0.5</label>
     <div id="map"></div>
 </div>
 
@@ -30,7 +30,6 @@ Delamain Corporation - Scenario {{ scenario.id }}
 </script>
 
 <script>
-
     var map = L.map('map').setView([{{ centerX }}, {{ centerY }}], 12);
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -76,6 +75,13 @@ Delamain Corporation - Scenario {{ scenario.id }}
     var lastAssigned = null
 
     async function startLoop() {
+        var slider_val = document.getElementById("sliderWithValue").value
+        var response = await fetch('{{ url_for("launch_scenario", id=scenario.id) }}', {method: "POST", headers: {
+            "speed": slider_val / 100,
+            },
+        });
+        var start_btn = document.getElementById("scenario_run_btn")
+        start_btn.outerHTML = await response.text()
         await fetch('{{ url_for("assign", id=scenario.id) }}')
         refreshIntervalId = window.setInterval(updateMap, 500);
     }
