@@ -17,28 +17,28 @@ def assign(scenario: ScenarioDTO,ratio:float) -> list[StandardMagentaVehicleDTO]
     customers = scenario.customers
     print(len(customers))
     vehicles = scenario.vehicles
-    if len(vehicles)>= len(customers):
+    if len(vehicles)>= len(customers): # if there is more taxi than customers, assign taxis based on minimal general waiting time
         customers_position = [[c.coordX,c.coordY] for c in customers]
         vehicles_position = [[v.coordX,v.coordY] for v in vehicles]
         distance = cdist(customers_position, vehicles_position, metric='euclidean')
-        v_indices,c_indices = linear_sum_assignment(distance)
+        c_indices,v_indices = linear_sum_assignment(distance)
         for index_comb in zip(v_indices,c_indices):
             print(index_comb)
             vehicles[index_comb[0]].customerId = customers[index_comb[1]].id
-    else:
-        if filter(lambda v: v.isAvailable,vehicles) == []:
+    else: # else, this algorithm will always run this part to assign taxi to one customer
+        if filter(lambda v: v.isAvailable,vehicles) == []: # the piority will increase by ratio when customers are waiting
             for i,c in enumerate(customers):
                 if c.awaitingService and c not in waiting_customer:
                     global piority_customer
                     piority_customer[i] += 0.1
-        else:
+        else: # if there is a taxi free now, we evaluate the distance based on the waiting list for a taxi
             free_vehicles = filter(lambda v: v.isAvailable,vehicles)
             for v in free_vehicles:
                 if v.id in vehicle_queue:
                     index = vehicle_queue.index(v.id)
                     v.customerId = waiting_customer[index][0]
                     vehicle_queue.remove(v.id)
-                    waiting_customer[index].pop(index)# 若顾客等待的列表为空，弹出这个列表
+                    waiting_customer[index].pop(index)# if the corresponding waiting list is empty, we pop it up
                     if waiting_customer[index] == []:
                         waiting_customer.pop(index)
             if free_vehicles == []:
@@ -56,7 +56,7 @@ def assign(scenario: ScenarioDTO,ratio:float) -> list[StandardMagentaVehicleDTO]
                         awaiting_customers.append(c)
                         awaiting_customers_index.append(i)
                         awaiting_customers_position.append([c.coordX,c.coordY])
-                #计算加权距离列表
+                #calculate weighted distance based on piority
                 end_positions,distance_to_go = base_distance_calculator(vehicles,customers)
                 distance_total = cdist(awaiting_customers_position,end_positions, metric='euclidean') + distance_to_go
                 distance_total[:,free_v_index]/=np.array(piority_customer)[awaiting_customers_index]
@@ -64,7 +64,7 @@ def assign(scenario: ScenarioDTO,ratio:float) -> list[StandardMagentaVehicleDTO]
                     v_indices,c_indices = linear_sum_assignment(distance_total.T)
                 else:
                     c_indices,v_indices = linear_sum_assignment(distance_total)
-                #当我们完成了加权距离算法之后，进行车辆列表的填充或者分配
+                #After calculated the weighted distance, assign taxis to the best customers using the waiting list of each taxi
                 for i,v_index in enumerate(v_indices):
                     if vehicles[v_index].isAvailable:
                         vehicles[v_index].customerId = customers[awaiting_customers_index[c_indices[i]]].id
