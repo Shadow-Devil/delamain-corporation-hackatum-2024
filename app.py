@@ -28,6 +28,10 @@ def view_scenario(id):
         scenario=scenario.model_dump(),
         centerX=(min(xs) + max(xs)) / 2, centerY=(min(ys) + max(ys)) / 2)
 
+@app.route("/about")
+def about():
+    return render_template("about.html")
+
 
 if __name__ == "__main__":
     app.config["TEMPLATES_AUTO_RELOAD"] = True

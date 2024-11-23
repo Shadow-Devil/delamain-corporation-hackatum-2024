@@ -1,17 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Delamain Corporation</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
-</head>
-<body>
-<div class="container">
-<h1 class="title m-2 has-text-centered">Delamain Corporation Fleet Manager</h1>
-    <h2 class="subtitle">All Scenarios</h2>
+{% extends "base.html" %}
+
+{% block title %}
+Delamain Corporation - Fleet Manager
+{% endblock %}
+
+{% block content %}
+<h2 class="subtitle" >All Scenarios</h2>
 {% for scenario in scenarios %}
-	<div class="box"><a href="{{ url_for("view_scenario", id=scenario.id) }}">Scenario: {{ scenario.id }} with {{ scenario.vehicles|length }} Vehicles and {{ scenario.customers|length }} Customers</a></div>
+    <div class="box">
+        <a href="{{ url_for("view_scenario", id=scenario.id) }}">
+            Scenario: {{ scenario.id }} with {{ scenario.vehicles|length }} Vehicles and {{ scenario.customers|length }} Customers
+        </a>
+    </div>
 {% endfor %}
-</div>
-</body>
-</html>
+{% endblock %}

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Delamain Corporation{% endblock %}</title>
+    <!-- Bulma CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+
+    <!-- Custom Styles -->
+    <style>
+        /* Set the background color of the entire page */
+        body {
+            background-color: white;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .content {
+            color: black;
+        }
+        .subtitle {
+            color: black;
+        }
+
+        header {
+            background-color: #7091E6;
+            color: white;
+            padding: 10px 20px;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center; /* Align items to center vertically */
+            justify-content: space-between;
+        }
+
+        /* Style the header title */
+        .header-title {
+            color: white;
+            font-size: 2.5rem; /* Increase font size */
+            font-weight: bold;
+            margin-right: auto; /* Ensure the title is on the left */
+        }
+
+        /* Style the navigation bar */
+        .navbar-menu-right {
+            display: flex;
+            gap: 10px; /* Reduce gap to make items closer */
+            position: absolute; /* Move the navbar items to the right */
+            right: 20px; /* Vertically align items */
+        }
+
+        /* Style the navigation items */
+        .navbar-item {
+            color: white;
+            font-size: 1.5rem; /* Make it a bit bigger */
+            text-decoration: none;
+        }
+
+        /* Change color on hover for navbar items */
+        .navbar-item:hover {
+            background-color: #004bb5;
+            color: white;
+        }
+
+        .content-container {
+            padding-top: 20px;
+            flex: 1;
+        }
+
+        .box {
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            color: #000000;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 0px;
+        }
+
+        .box:hover {
+            background-color: #9f9f9f;
+        }
+
+        .box a {
+            color: #000000;
+            text-decoration: none;
+        }
+
+        .box a:hover {
+            color: #0fffff;
+            text-decoration: none;
+        }
+
+        footer {
+            background-color: #7091E6 !important;
+            color: white;
+            margin-top: auto;
+            padding: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<!-- Header: spans the full width -->
+<header>
+        <a href="/" class="header-title">Delamain Corporation Fleet Manager</a>
+    <nav class="navbar-menu-right">
+        <a class="navbar-item" href="#" id="theme-toggle">&#9728;</a> <!-- Sun/Moon symbol -->
+        <a class="navbar-item" href="/about">About</a>
+    </nav>
+
+</header>
+
+<!-- Main Content -->
+<div class="content-container">
+    <div class="container">
+        {% block content %}
+        {% endblock %}
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer has-text-centered">
+    <p>&copy; 2024 Delamain Corporation</p>
+</footer>
+
+<script>
+    // JavaScript for toggling sun/moon icon and dark/light theme
+    const themeToggle = document.getElementById('theme-toggle');
+    let isDarkMode = false;
+
+    themeToggle.addEventListener('click', () => {
+        if (isDarkMode) {
+            document.body.style.backgroundColor = 'white';
+            document.body.style.color = 'black';
+            themeToggle.innerHTML = '&#9728;'; // Sun symbol
+        } else {
+            document.body.style.backgroundColor = '#2c3e50';
+            document.body.style.color = 'white';
+            themeToggle.innerHTML = '&#9790;'; // Moon symbol
+        }
+        isDarkMode = !isDarkMode;
+    });
+</script>
+</body>
+</html>
