@@ -3,6 +3,7 @@ from typing import List
 from backend_requests.scenario_runner_api import update_scenario
 from model.backend.ScenarioDTO import ScenarioDTO
 from model.backend.StandardMagentaVehicleDTO import StandardMagentaVehicleDTO
+from model.backend.CustomerDTO import CustomerDTO
 from model.scenario_runner.UpdateScenario import UpdateScenario
 from model.scenario_runner.VehicleUpdate import VehicleUpdate
 from scipy.optimize import linear_sum_assignment
@@ -11,9 +12,9 @@ import numpy as np
 
 piority_id = None
 piority_customer=[] # muss auf leer setzen wenn senario wechselt
-vehicle_queue = []
-waiting_customer = [] # assigned but waiting
-assigned_customer = []
+vehicle_queue:list[str] = []
+waiting_customer:list[CustomerDTO] = [] # assigned but waiting
+assigned_customer:list[CustomerDTO] = []
 
 def assign(scenario: ScenarioDTO,ratio:float) -> list[StandardMagentaVehicleDTO]:
     customers = scenario.customers
@@ -28,19 +29,22 @@ def assign(scenario: ScenarioDTO,ratio:float) -> list[StandardMagentaVehicleDTO]
             print(index_comb)
             vehicles[index_comb[0]].customerId = customers[index_comb[1]].id
     else: # else, this algorithm will always run this part to assign taxi to one customer
-        if filter(lambda v: v.customerId == None,vehicles) == []: # the piority will increase by ratio when customers are waiting
+        if list(filter(lambda v: v.customerId is None,vehicles)) == []: # the piority will increase by ratio when customers are waiting
             for i,c in enumerate(customers):
                 if c.awaitingService and c not in waiting_customer and c not in assigned_customer:
                     global piority_customer
                     piority_customer[i] += ratio
         else: # if there is at least one taxi free now, we evaluate the distance based on the waiting list for a taxi
-            free_vehicles = filter(lambda v: v.customerId == None,vehicles)
+            free_vehicles: list[StandardMagentaVehicleDTO] = list(filter(lambda v: v.customerId is None,vehicles))
             for v in free_vehicles:
                 if v.id in vehicle_queue:
                     index = vehicle_queue.index(v.id)# if a vehicle is free, we check if there is already a customer waiting for this taxi
                     v.customerId = waiting_customer[index].id
-                    vehicle_queue.remove(v.id)
+                    vehicle_queue.pop(index)
                     waiting_customer.pop(index)
+                    print("removed from waiting but assigned list:", len(waiting_customer))
+            print("current vehicle queue:", len(vehicle_queue))
+            print("waiting but assigned: ", len(waiting_customer))
             awaiting_customers = list()
             awaiting_customers_index = list()
             awaiting_customers_position = list()
@@ -61,7 +65,7 @@ def assign(scenario: ScenarioDTO,ratio:float) -> list[StandardMagentaVehicleDTO]
                         available_vehicles_position.append([v.coordX,v.coordY])
                 free_v_index = list()
                 for i, v in enumerate(available_vehicles):  # recording all the index of free vehicles in the available vehicles
-                    if v.customerId == None:
+                    if v.customerId is None:
                         free_v_index.append(i)
                 #calculate weighted distance based on piority
                 end_positions,distance_to_go = base_distance_calculator(available_vehicles,customers)
@@ -74,7 +78,7 @@ def assign(scenario: ScenarioDTO,ratio:float) -> list[StandardMagentaVehicleDTO]
                     v_indices,c_indices = linear_sum_assignment(distance_total.T)
                 #After calculated the weighted distance, assign taxis to the best customers using the waiting list of each taxi
                 for i,v_index in enumerate(v_indices):
-                    if vehicles[available_vehicles_index[v_index]].customerId == None: # if the chosen vehicle is really free
+                    if vehicles[available_vehicles_index[v_index]].customerId is None: # if the chosen vehicle is really free
                         vehicles[available_vehicles_index[v_index]].customerId = customers[awaiting_customers_index[c_indices[i]]].id # assign a taxi to a customer
                         assigned_customer.append(customers[awaiting_customers_index[c_indices[i]]])
                     else:
@@ -82,8 +86,8 @@ def assign(scenario: ScenarioDTO,ratio:float) -> list[StandardMagentaVehicleDTO]
                         #    ix = vehicle_queue.index(vehicles[available_vehicles_index[v_index]].id)
                         #    waiting_customer[ix].append(customers[awaiting_customers_index[c_indices[i]]])
                         #else:
-                        vehicle_queue.append(vehicles[available_vehicles_index[v_index]])
-                        waiting_customer.append([customers[awaiting_customers_index[c_indices[i]]]])
+                        vehicle_queue.append(vehicles[available_vehicles_index[v_index]].id)
+                        waiting_customer.append(customers[awaiting_customers_index[c_indices[i]]])
     return vehicles
 
 
@@ -106,5 +110,5 @@ def step(scenario: ScenarioDTO):
     if customers and any([v.isAvailable for v in scenario.vehicles]):
         updates = assign(scenario,0.5)
     updates_ = list(filter(lambda x: x.customerId is not None, map(lambda x: VehicleUpdate.model_validate(x.model_dump()), updates)))
-    print(str(updates_))
+    #print(str(updates_))
     update_scenario(scenario.id, UpdateScenario(vehicles=updates_))

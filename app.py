@@ -73,7 +73,7 @@ def assign(id):
     customers = scenario.customers
     #print ("finished: ",len(list(filter(lambda x: x.awaitingService,customers))))
     print ("finished: ",len(list(filter(lambda x:not x.awaitingService,customers))))
-    print("waiting but assigned: " ,len(controller1.waiting_customer))
+
     print("already assigned: ", len(controller1.assigned_customer))
     return ""
 
