@@ -15,13 +15,15 @@ waiting_customer = [] # assigned but waiting
 
 def assign(scenario: ScenarioDTO,ratio:float) -> list[StandardMagentaVehicleDTO]:
     customers = scenario.customers
+    print(len(customers))
     vehicles = scenario.vehicles
     if len(vehicles)>= len(customers):
         customers_position = [[c.coordX,c.coordY] for c in customers]
         vehicles_position = [[v.coordX,v.coordY] for v in vehicles]
         distance = cdist(customers_position, vehicles_position, metric='euclidean')
-        v_indices, c_indices = linear_sum_assignment(distance)
+        v_indices,c_indices = linear_sum_assignment(distance)
         for index_comb in zip(v_indices,c_indices):
+            print(index_comb)
             vehicles[index_comb[0]].customerId = customers[index_comb[1]].id
     else:
         if filter(lambda v: v.isAvailable,vehicles) == []:
@@ -57,7 +59,7 @@ def assign(scenario: ScenarioDTO,ratio:float) -> list[StandardMagentaVehicleDTO]
                 #计算加权距离列表
                 end_positions,distance_to_go = base_distance_calculator(vehicles,customers)
                 distance_total = cdist(awaiting_customers_position,end_positions, metric='euclidean') + distance_to_go
-                distance_total[:,free_v_index]/=np.array(piority_customer)
+                distance_total[:,free_v_index]/=np.array(piority_customer)[awaiting_customers_index]
                 if len(vehicles)>= len(awaiting_customers):
                     v_indices,c_indices = linear_sum_assignment(distance_total.T)
                 else:
