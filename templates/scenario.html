@@ -71,38 +71,55 @@ Delamain Corporation - Scenario {{ scenario.id }}
     }
     var lines = {}
     var refreshIntervalId
+    var lastAssigned = null
 
     async function startLoop() {
         await fetch('{{ url_for("assign", id=scenario.id) }}')
         refreshIntervalId = window.setInterval(updateMap, 500);
     }
-    async function updateMap() {
-        try {
-            var response = await (await fetch('{{ url_for("get_scenario", id=scenario.id) }}')).json();
-            if (response.customers.find(c => c.awaitingService) === undefined) {
-                clearInterval(refreshIntervalId);
-            }
-
-            if (response.vehicles.find(v => v.isAvailable)) {
-                console.log("Assigning again")
-                await fetch('{{ url_for("assign", id=scenario.id) }}')
-            }
-            for (const vehicle of response.vehicles) {
-                if (vehicle.customerId != null && lines[vehicle.id] == null) {
-                    var line = L.polyline([vehicleMap[vehicle.id].getLatLng(), customerMap[vehicle.customerId].getLatLng()], {color: 'red'}).addTo(map);
-                    console.log(line);
-                    lines[vehicle.id] = line;
+    function updateMap() {
+        var request = new XMLHttpRequest()
+        request.open("get", '{{ url_for("get_scenario", id=scenario.id) }}', false)
+        request.onreadystatechange = function() {
+            if (this.readyState === 4 && this.status === 200) {
+                var response = JSON.parse(this.responseText);
+                try {
+                if (response.customers.find(c => c.awaitingService) === undefined) {
+                    clearInterval(refreshIntervalId);
                 }
-                vehicleMap[vehicle.id].setLatLng([vehicle.coordX, vehicle.coordY]).update()
 
-                console.log(vehicle.remainingTravelTime)
+                if (response.vehicles.find(v => v.isAvailable) && response.customers.find(c => c.awaitingService) && (lastAssigned == null || lastAssigned < (Date.now() - 4000))) {
+                    console.log("Assigning again")
+                    var request = new XMLHttpRequest()
+                    request.open("get", '{{ url_for("assign", id=scenario.id) }}', false)
+                    request.send()
+                    lastAssigned = Date.now()
+                }
+                for (const vehicle of response.vehicles) {
+                    if (vehicle.customerId != null && lines[vehicle.id] == null) {
+                        var line = L.polyline([vehicleMap[vehicle.id].getLatLng(), customerMap[vehicle.customerId].getLatLng()], {color: 'red'}).addTo(map);
+                        console.log(line);
+                        lines[vehicle.id] = line;
+                    }
+                    if (vehicle.customerId != null && L.latLng(vehicle.coordX, vehicle.coordY) == customerMap[vehicle.customerId].getLatLng()) {
+                        lines[vehicle.id] = null
+                    }
+                    vehicleMap[vehicle.id].setLatLng([vehicle.coordX, vehicle.coordY]).update()
+
+                    console.log(vehicle.remainingTravelTime)
+                }
+                for (const customer of response.customers) {
+                    customerMap[customer.id].setLatLng([customer.coordX, customer.coordY]).update()
+                }
+            } catch (e) {
+                    console.log(e);
+                clearInterval(refreshIntervalId)
             }
-            for (const customer of response.customers) {
-                customerMap[customer.id].setLatLng([customer.coordX, customer.coordY]).update()
-            }
-        } catch (e) {
-            clearInterval(refreshIntervalId)
         }
+
+        };
+        request.send();
+
     }
 </script>
 {% endblock %}

@@ -9,6 +9,7 @@ from scipy.optimize import linear_sum_assignment
 from scipy.spatial.distance import cdist
 import numpy as np
 
+piority_id = None
 piority_customer=[] # muss auf leer setzen wenn senario wechselt
 vehicle_queue = []
 waiting_customer = [] # assigned but waiting
@@ -59,6 +60,7 @@ def assign(scenario: ScenarioDTO,ratio:float) -> list[StandardMagentaVehicleDTO]
                 #calculate weighted distance based on piority
                 end_positions,distance_to_go = base_distance_calculator(vehicles,customers)
                 distance_total = cdist(awaiting_customers_position,end_positions, metric='euclidean') + distance_to_go
+                print(piority_customer, awaiting_customers_index)
                 distance_total[:,free_v_index]/=np.array(piority_customer)[awaiting_customers_index]
                 if len(vehicles)>= len(awaiting_customers):
                     v_indices,c_indices = linear_sum_assignment(distance_total.T)
@@ -96,6 +98,6 @@ def step(scenario: ScenarioDTO):
     updates: List[StandardMagentaVehicleDTO] = []
     if customers and any([v.isAvailable for v in scenario.vehicles]):
         updates = assign(scenario,0.1)
-    updates_ = map(lambda x: VehicleUpdate.model_validate(x.model_dump()), updates)
+    updates_ = list(filter(lambda x: x.customerId is not None, map(lambda x: VehicleUpdate.model_validate(x.model_dump()), updates)))
     print(str(updates_))
     update_scenario(scenario.id, UpdateScenario(vehicles=updates_))
