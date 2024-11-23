@@ -1,7 +1,7 @@
+from backend_requests.scenario_runner_api import update_scenario
 from model.backend.ScenarioDTO import ScenarioDTO
 from model.scenario_runner.UpdateScenario import UpdateScenario
 from model.scenario_runner.VehicleUpdate import VehicleUpdate
-from scenario_runner_api import update_scenario
 import math
 
 

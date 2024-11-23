@@ -16,6 +16,7 @@ Delamain Corporation - Scenario {{ scenario.id }}
     <button
             hx-post="{{ url_for("launch_scenario", id=scenario.id) }}"
             hx-swap="outerHTML"
+            hx-on::before-request="startLoop()"
             class="button">Start Scenario</button>
     <div id="map"></div>
 </div>
@@ -50,15 +51,45 @@ Delamain Corporation - Scenario {{ scenario.id }}
     });
 
     var vehicles = {{ scenario.vehicles|tojson }};
+    var vehicleMap = {};
     for (const vehicle of vehicles) {
-        L.marker([vehicle.coordX, vehicle.coordY], {icon: customIconTaxi}).addTo(map)
+        var marker = L.marker([vehicle.coordX, vehicle.coordY], {icon: customIconTaxi});
+        marker.addTo(map)
             .bindPopup(`<b>Vehicle:</b> ${vehicle.id}<br><b>Coordinates:</b> ${vehicle.coordX}, ${vehicle.coordY}`);
+        vehicleMap[vehicle.id] = marker
     }
 
+
     var customers = {{ scenario.customers|tojson }};
+    var customerMap = {};
     for (const customer of customers) {
-        L.marker([customer.coordX, customer.coordY], {icon: customIconCustomer}).addTo(map)
+        marker = L.marker([customer.coordX, customer.coordY], {icon: customIconCustomer});
+        marker.addTo(map)
             .bindPopup(`<b>Customer:</b> ${customer.id}<br><b>Coordinates:</b> ${customer.coordX}, ${customer.coordY}`);
+        customerMap[customer.id] = marker;
+    }
+    var lines = {}
+
+    async function startLoop() {
+        fetch('{{ url_for("assign", id=scenario.id) }}')
+        window.setInterval(updateMap, 500);
+    }
+    function updateMap() {
+        fetch('{{ url_for("get_scenario", id=scenario.id) }}').then(e => e.json().then(response => {
+
+            console.log(response.vehicles[0].coordX, response.vehicles[0].coordY);
+            for (const vehicle of response.vehicles) {
+                if (vehicle.customerId != null && lines[vehicle.id] == null) {
+                    var line = L.polyline([vehicleMap[vehicle.id].getLatLng(), customerMap[vehicle.customerId].getLatLng()], {color: 'red'}).addTo(map);
+                    console.log(line);
+                    lines[vehicle.id] = line;
+                }
+                vehicleMap[vehicle.id].setLatLng([vehicle.coordX, vehicle.coordY]).update()
+            }
+            for (const customer of response.customers) {
+                customerMap[customer.id].setLatLng([customer.coordX, customer.coordY]).update()
+            }
+        }));
     }
 </script>
 {% endblock %}

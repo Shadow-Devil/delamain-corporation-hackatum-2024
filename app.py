@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request
 
-from backend_requests import backend, scenario_runner_api
+from backend_requests import backend, scenario_runner_api, controller
 
 app = Flask(__name__)
 
@@ -28,10 +28,18 @@ def view_scenario(id):
         scenario=scenario.model_dump(),
         centerX=(min(xs) + max(xs)) / 2, centerY=(min(ys) + max(ys)) / 2)
 
+@app.route("/about")
+def about():
+    return render_template("about.html")
+
 @app.route("/api/scenario/<id>", methods=["DELETE"])
 def delete_scenario(id):
     backend.delete_scenario(id)
     return ""
+
+@app.route("/api/scenario/<id>", methods=["GET"])
+def get_scenario(id):
+    return scenario_runner_api.get_scenario(id).model_dump()
 
 @app.route("/api/scenario/", methods=["POST"])
 def create_scenario():
@@ -44,9 +52,9 @@ def create_scenario():
 def launch_scenario(id):
     return render_template("fragment/launch_scenario.html", result=scenario_runner_api.launch_scenario(id))
 
-@app.route("/about")
-def about():
-    return render_template("about.html")
+@app.route("/api/scenario/<id>/assign")
+def assign(id):
+    controller.step(scenario_runner_api.get_scenario(id))
 
 
 if __name__ == "__main__":
