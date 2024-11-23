@@ -27,10 +27,10 @@ Delamain Corporation - Fleet Manager
     {% for scenario in scenarios %}
     <div class="scenario-container">
 
-            <div class="scenario-box"><a href="{{ url_for('view_scenario', id=scenario.id) }}" class="scenario-link">
+            <a class="scenario-box" href="{{ url_for('view_scenario', id=scenario.id) }}"><p  class="scenario-link">
                 Scenario: {{ scenario.id }} with {{ scenario.vehicles|length }} Vehicles
-                and {{ scenario.customers|length }} Customers
-            </a></div>
+                and {{ scenario.customers|length }} Customers</p>
+            </a>
 
         <button class="delete"
                 hx-delete="/api/scenario/{{ scenario.id }}"
