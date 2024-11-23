@@ -1,26 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Delamain Corporation</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
-    <script src="https://unpkg.com/htmx.org@2.0.3" integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq" crossorigin="anonymous"></script>
-</head>
-<body>
-<div class="container">
-<h1 class="title m-2 has-text-centered">Delamain Corporation Fleet Manager</h1>
+{% extends "base.html" %}
+
+{% block title %}
+Delamain Corporation - Fleet Manager
+{% endblock %}
+
+{% block content %}
     <h2 class="subtitle">All Scenarios</h2>
 <div>
     <div class="field is-grouped">
         <!-- TODO validate min 1 max 50 for vehicles and 1 and 200 for customers -->
         <p class="control">
-            <input id="vehicles_post" class="input" type="number" placeholder="Vehicles">
+            <input id="vehicles_post" class="input" type="number">
         </p>
         <p class="control">
-            <input id="customers_post" class="input" type="number" placeholder="Customers">
+            <input id="customers_post" class="input" type="number">
         </p>
         <p class="control">
-            <button id="something" class="button" type="submit" hx-post="/api/scenario" hx-vars="js:{...getScenarioValues()}" hx-target="#scenarios" hx-swap="beforeend">
+            <button id="something" class="button" hx-post="/api/scenario" hx-vars="js:{...getScenarioValues()}" hx-target="#scenarios" hx-swap="beforeend">
                 Add new Scenario
             </button>
         </p>
@@ -35,7 +31,6 @@
     </div>
 {% endfor %}
 </div>
-</div>
 <script>
     function getScenarioValues() {
         return {
@@ -44,5 +39,4 @@
         }
     }
 </script>
-</body>
-</html>
+{% endblock %}

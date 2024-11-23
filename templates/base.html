@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Delamain Corporation{% endblock %}</title>
+    <!-- Bulma CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@2.0.3" integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq" crossorigin="anonymous"></script>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@200..800&display=swap" rel="stylesheet">
+
+    <!-- Custom Styles -->
+    <style>
+
+        :root[data-theme="light"] {
+            --yellow: #fce4d4;
+            --white: #fbfbfe;
+            --text: #040316;
+            --background: #fbfbfe;
+            --primary: #423bc4;
+            --secondary: #b8d7ff;
+            --accent: #619bff;
+        }
+
+        :root[data-theme="dark"] {
+            --yellow: #fce4d4;
+            --white: #eae9fc;
+            --text: #eae9fc;
+            --background: #010104;
+            --primary: #423bc4;
+            --secondary: #001f47;
+            --accent: #003a9e;
+        }
+
+        /* Set the background color of the entire page */
+        body {
+            background-color: var(--background);
+            margin: 0;
+            flex-direction: column;
+            min-height: 100vh;
+            font-family: 'Oxanium', sans-serif; /* Apply the Oxanium font to the entire page */
+
+        }
+
+        .content {
+            color: var(--text);
+        }
+
+        .subtitle {
+            color: var(--text);
+        }
+
+        header {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 15px 20px;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center; /* Align items to center vertically */
+            justify-content: space-between;
+        }
+
+        /* Style the header title */
+        .header-title {
+            color: var(--white);
+            font-size: 3.5rem; /* Increase font size for title */
+            font-weight: bold;
+            margin-right: 0; /* Ensure the title is on the left */
+        }
+
+        /* Style the navigation bar */
+        .navbar-menu-right {
+            display: flex;
+            gap: 20px; /* Increase gap to make items spaced better */
+            align-items: center; /* Vertically align items */
+        }
+
+        /* Style the navigation items */
+        .navbar-item {
+            color: var(--white);
+            font-size: 1.5rem; /* Make it a bit bigger */
+            text-decoration: none;
+            border-radius: 10px; /* Keeps the edges rounded in both normal and hover states */
+        }
+
+        /* Change color on hover for navbar items */
+        .navbar-item:hover {
+            background-color: var(--accent);
+            border-radius: 10px; /* Adjust the value to change the level of roundness */
+        }
+
+        .content-container {
+            padding-top: 0;
+            flex: 1;
+        }
+
+        .container {
+    flex-grow: 1;
+    margin: 0;
+    position: relative;
+    width: 100%;
+}
+
+        .box {
+            background-color: var(--background);
+            border: 1px solid var(--secondary);
+            color: var(--text);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 0px;
+        }
+
+        .box:hover {
+            background-color: var(--accent);
+        }
+
+        .box a {
+            color: var(--text);
+            text-decoration: none;
+        }
+
+        .box a:hover {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        footer {
+            background-color: var(--secondary) !important;
+            color: var(--text);
+            margin-top: 0;
+            padding: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<!-- Header: spans the full width -->
+<header>
+    <a href="/" class="header-title">Delamain Corporation Fleet Manager</a>
+    <nav class="navbar-menu-right">
+        <a class="navbar-item" href="#" id="theme-toggle">&#9728;</a> <!-- Sun/Moon symbol -->
+        <a class="navbar-item" href="/about">About</a>
+    </nav>
+</header>
+
+<style>
+    html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow-x: hidden;
+    }
+</style>
+
+<div class="content-container">
+    <div class="container">
+        {% block content %}
+        {% endblock %}
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer has-text-centered">
+    <p>&copy; 2024 Delamain Corporation</p>
+</footer>
+
+<script>
+    // JavaScript for toggling sun/moon icon and dark/light theme
+    const themeToggle = document.getElementById('theme-toggle');
+    const htmlElement = document.documentElement;
+
+    themeToggle.addEventListener('click', () => {
+        if (htmlElement.getAttribute('data-theme') === 'light') {
+            htmlElement.setAttribute('data-theme', 'dark');
+            themeToggle.innerHTML = '&#9728;'; // Sun symbol
+        } else {
+            htmlElement.setAttribute('data-theme', 'light');
+            themeToggle.innerHTML = '&#9790;'; // Moon symbol
+        }
+    });
+</script>
+</body>
+</html>

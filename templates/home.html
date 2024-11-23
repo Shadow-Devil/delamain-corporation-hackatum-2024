@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero-container" style="position: relative; margin: 0;top: 0; width: 100vw; height: calc(100vh - 80px); margin: 0; background-image: url('{{ url_for('static', filename='images/Munich4.png') }}'); background-size: cover; background-position: center;">
+    <!-- Button positioned in the middle of the image -->
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+        <a href="/index" class="button is-large" style="background-color: var(--primary); color: var(--white); border: none;">
+            Explore Fleet
+        </a>
+    </div>
+</div>
+<!-- Below the image, add some introductory text -->
+<div class="container content" style="text-align: center; margin-top: 40px;">
+    <h2 class="subtitle">Welcome to Delamain Corporation Fleet Manager</h2>
+    <p>
+        We specialize in efficient and state-of-the-art fleet management solutions for smart transportation. With advanced
+        AI and automation, our goal is to ensure a smooth and effective experience for every driver and vehicle owner.
+        Explore our fleet to see the innovation in action!
+    </p>
+</div>
+{% endblock %}
+
+<style>
+    html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow-x: hidden;
+    }
+    .hero-container {
+        position: relative; /* Use relative positioning instead of absolute */
+        width: 100vw;
+        height: 100vh;
+        margin: 0;
+        background-size: cover;
+        background-position: center;
+    }
+</style>

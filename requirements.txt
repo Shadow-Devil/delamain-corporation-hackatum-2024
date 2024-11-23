@@ -1,4 +1,5 @@
-flask
-requests
-pydantic
+flask>=3.1.0
+requests>=2.32.3
+pydantic>=2.10.1
 scipy
+igraph>=0.11.8
