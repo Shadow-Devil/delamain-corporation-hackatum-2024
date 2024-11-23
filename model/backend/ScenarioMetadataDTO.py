@@ -1,5 +1,6 @@
 from pydantic import BaseModel
-from VehicleDataDto import VehicleDataDto
+
+from model.backend.VehicleDataDto import VehicleDataDto
 
 
 class ScenarioMetadataDTO(BaseModel):

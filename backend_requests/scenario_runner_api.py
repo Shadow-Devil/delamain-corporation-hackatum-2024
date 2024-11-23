@@ -8,13 +8,18 @@ URL = 'http://localhost:8090'
 
 
 # Scenarios
-def get_scenario(scenario_id: str) -> Scenario:
-    return Scenario.model_validate(requests.get(f'{URL}/Scenarios/get_scenario/{scenario_id}').json())
+def get_scenario(scenario_id: str) -> Scenario | None:
+    response = requests.get(f'{URL}/Scenarios/get_scenario/{scenario_id}')
+    if response.status_code == 404:
+        return None
+    return Scenario.model_validate(response.json())
 
 
-def initialize_scenario(payload: Scenario, db_scenario_id: str = None) -> Scenario:
-    return Scenario.model_validate(requests.post(
-        f'{URL}/Scenarios/initialize_scenario', json=payload.json, params={'db_scenario_id': db_scenario_id}).json())
+def initialize_scenario(payload: Scenario, db_scenario_id: str = None):
+    response = requests.post(
+        f'{URL}/Scenarios/initialize_scenario', json=payload.model_dump(), params={'db_scenario_id': db_scenario_id})
+    if response.status_code != 200:
+        raise Exception(response.text)
 
 
 def update_scenario(scenario_id: str, payload: UpdateScenario) -> Scenario:
