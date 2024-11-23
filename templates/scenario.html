@@ -9,6 +9,16 @@ Delamain Corporation - Scenario {{ scenario.id }}
         #map {
             height: 66.67vh;
         }
+        /* Dark Mode Styles */
+    body {
+        padding: 0;
+        margin: 0;
+    }
+
+    /* Apply filters only for dark-tiles to differentiate light and dark themes */
+    .dark-tiles {
+        filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+    }
 </style>
 
 <div class="container">
@@ -21,6 +31,13 @@ Delamain Corporation - Scenario {{ scenario.id }}
     <input type="range" value="50" min="1" max="100" id="sliderWithValue" oninput="document.getElementById('sliderID').innerHTML = this.value / 100">
     <label id="sliderID">0.5</label>
     <div id="map"></div>
+<div class="legend" style="padding: 20px 0 20px 20px;">
+    <h2>Legend</h2>
+    <p><span style="display: inline-block; width: 20px; height: 10px; background-color: #EEA53A;"></span> Yellow Line: Ride in Progress</p>
+    <p><span style="display: inline-block; width: 20px; height: 10px; background-color: #423BC4;"></span> Blue Line: Customer Destination Path</p>
+    <p><img src="{{ url_for('static', filename='images/ready.png') }}" alt="Taxi" style="width: 20px;"> Blue Car: Available Vehicle</p>
+    <p><img src="{{ url_for('static', filename='images/full.png') }}" alt="Taxi" style="width: 20px; filter: hue-rotate(330deg);"> Pink Car: Vehicle with Customer</p>
+    <p><img src="{{ url_for('static', filename='images/person.png') }}" alt="Customer" style="width: 15px; filter: hue-rotate(330deg);"> Customer waiting for Taxi</p>
 </div>
 
 <!-- Make sure you put this AFTER Leaflet's CSS -->
@@ -30,25 +47,55 @@ Delamain Corporation - Scenario {{ scenario.id }}
 </script>
 
 <script>
+
+    // Initialize the map
     var map = L.map('map').setView([{{ centerX }}, {{ centerY }}], 12);
 
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    // Define the light and dark tile layers
+    var lightTiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(map);
+    });
+
+    var darkTiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        className: 'dark-tiles' // Added a class name to apply filter styling to the dark map tiles
+    });
+
+    // Set the default tiles (light mode)
+    lightTiles.addTo(map);
+
+    // JavaScript for toggling sun/moon icon and dark/light theme
+    const themeToggle = document.getElementById('theme-toggle');
+    const htmlElement = document.documentElement;
+
+    themeToggle.addEventListener('click', () => {
+        if (htmlElement.getAttribute('data-theme') === 'light') {
+            htmlElement.setAttribute('data-theme', 'dark');
+            themeToggle.innerHTML = '&#9728;'; // Sun symbol
+            map.removeLayer(lightTiles);
+            darkTiles.addTo(map); // Add dark map tiles
+        } else {
+            htmlElement.setAttribute('data-theme', 'light');
+            themeToggle.innerHTML = '&#9790;'; // Moon symbol
+            map.removeLayer(darkTiles);
+            lightTiles.addTo(map); // Add light map tiles
+        }
+    });
 
     var customIconTaxi = L.icon({
-        iconUrl: 'https://cdn-icons-png.flaticon.com/512/5086/5086932.png',
-        iconSize: [50, 50],
-        iconAnchor: [25, 25],
-        popupAnchor: [0, -25]
+        iconUrl: "{{ url_for('static', filename='images/ready.png') }}",
+        iconSize: [40, 40],
+        iconAnchor: [20, 20],
+        popupAnchor: [0, -20]
     });
 
     var customIconCustomer = L.icon({
-        iconUrl: 'https://cdn-icons-png.flaticon.com/512/1436/1436300.png',
-        iconSize: [50, 50],
-        iconAnchor: [25, 25],
-        popupAnchor: [0, -25]
+        iconUrl: "{{ url_for('static', filename='images/person.png') }}",
+        iconSize: [26, 40],
+        iconAnchor: [13, 20],
+        popupAnchor: [0, -20]
     });
 
     var vehicles = {{ scenario.vehicles|tojson }};
@@ -68,7 +115,7 @@ Delamain Corporation - Scenario {{ scenario.id }}
         marker.addTo(map)
             .bindPopup(`<b>Customer:</b> ${customer.id}<br><b>Coordinates:</b> ${customer.coordX}, ${customer.coordY}`);
         customerMap[customer.id] = marker;
-        L.polyline([[customer.coordX, customer.coordY], [customer.destinationX, customer.destinationY]], {color: "blue"}).addTo(map);
+        L.polyline([[customer.coordX, customer.coordY], [customer.destinationX, customer.destinationY]], {color: "#423BC4FF"}).addTo(map);
     }
     var lines = {}
     var refreshIntervalId
@@ -108,7 +155,7 @@ Delamain Corporation - Scenario {{ scenario.id }}
                 }
                 for (const vehicle of response.vehicles) {
                     if (vehicle.customerId != null && lines[vehicle.id] == null) {
-                        var line = L.polyline([vehicleMap[vehicle.id].getLatLng(), customerMap[vehicle.customerId].getLatLng()], {color: 'red'}).addTo(map);
+                        var line = L.polyline([vehicleMap[vehicle.id].getLatLng(), customerMap[vehicle.customerId].getLatLng()], {color: '#EEA53AFF'}).addTo(map);
                         //console.log(line);
                         lines[vehicle.id] = line;
                     }
