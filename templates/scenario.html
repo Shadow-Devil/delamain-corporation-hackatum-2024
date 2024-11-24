@@ -71,8 +71,8 @@ Delamain Corporation - Scenario {{ scenario.id }}
     lightTiles.addTo(map);
 
     // JavaScript for toggling sun/moon icon and dark/light theme
-    const themeToggle = document.getElementById('theme-toggle');
-    const htmlElement = document.documentElement;
+    themeToggle = document.getElementById('theme-toggle');
+    htmlElement = document.documentElement;
 
     themeToggle.addEventListener('click', () => {
         if (htmlElement.getAttribute('data-theme') === 'light') {
@@ -90,6 +90,12 @@ Delamain Corporation - Scenario {{ scenario.id }}
 
     var customIconTaxi = L.icon({
         iconUrl: "{{ url_for('static', filename='images/ready.png') }}",
+        iconSize: [40, 40],
+        iconAnchor: [20, 20],
+        popupAnchor: [0, -20]
+    });
+    var customIconTaxiWithCustomer = L.icon({
+        iconUrl: "{{ url_for('static', filename='images/full.png') }}",
         iconSize: [40, 40],
         iconAnchor: [20, 20],
         popupAnchor: [0, -20]
@@ -119,7 +125,7 @@ Delamain Corporation - Scenario {{ scenario.id }}
         marker.addTo(map)
             .bindPopup(`<b>Customer:</b> ${customer.id}<br><b>Coordinates:</b> ${customer.coordX}, ${customer.coordY}`);
         customerMap[customer.id] = marker;
-        L.polyline([[customer.coordX, customer.coordY], [customer.destinationX, customer.destinationY]], {color: "#423BC4FF"}).addTo(map);
+        L.polyline([[customer.coordX, customer.coordY], [customer.destinationX, customer.destinationY]], {color: "#423BC4FF", weight: 2}).addTo(map);
     }
     var lines = {}
     var remaining = {}
@@ -146,7 +152,8 @@ Delamain Corporation - Scenario {{ scenario.id }}
                 var response = JSON.parse(this.responseText);
                 try {
                 if (response.customers.find(c => c.awaitingService) === undefined) {
-
+                    document.getElementById('status').innerText = 'Current Status: DONE'
+                    document.getElementById('delivered').innerText = 'Delivered ' + {{ scenario.customers|length }} + '/{{ scenario.customers|length }}'
                     console.log("DONE!")
                     clearInterval(refreshIntervalId);
                 }
@@ -168,10 +175,14 @@ Delamain Corporation - Scenario {{ scenario.id }}
                     lastAssigned = Date.now()
                 }
                 for (const vehicle of response.vehicles) {
+                    if (vehicleMap[vehicle.id]?.getIcon()?.iconUrl != customIconTaxiWithCustomer.iconUrl && vehicle.customerId && vehicleMap[vehicle.id].getLatLng().equals(customerMap[vehicle.customerId].getLatLng())) {
+                        vehicleMap[vehicle.id].setIcon(customIconTaxiWithCustomer)
+                        customerMap[vehicle.id].setOpacity(0)
+                    }
                     //console.log(vehicle.vehicleSpeed)
                     //console.log(vehicle.remainingTravelTime)
                     if (vehicle.customerId != null && lines[vehicle.id] == null) {
-                        var line = L.polyline([L.latLng(vehicle.coordX, vehicle.coordY), customerMap[vehicle.customerId].getLatLng()], {color: '#EEA53AFF'}).addTo(map);
+                        var line = L.polyline([L.latLng(vehicle.coordX, vehicle.coordY), customerMap[vehicle.customerId].getLatLng()], {color: '#EEA53AFF', weight: 2}).addTo(map);
                         //console.log(line);
                         lines[vehicle.id] = line;
                         if(remaining[vehicle.id] ==null){ // record the maximal remaining time
