@@ -10,8 +10,8 @@ from scipy.optimize import linear_sum_assignment
 from scipy.spatial.distance import cdist
 import numpy as np
 
-piority_id = None
-piority_customer=[] # muss auf leer setzen wenn senario wechselt
+priority_id = None
+priority_customer=[] # muss auf leer setzen wenn senario wechselt
 vehicle_queue:list[str] = []
 waiting_customer:list[CustomerDTO] = [] # assigned but waiting
 assigned_customer:list[CustomerDTO] = []
@@ -29,11 +29,11 @@ def assign(scenario: ScenarioDTO,priorityRatio:float,energyPenalty:float) -> lis
             print(index_comb)
             vehicles[index_comb[0]].customerId = customers[index_comb[1]].id
     else: # else, the algorithm will always run this part to assign taxi
-        #if list(filter(lambda v: v.customerId is None,vehicles)) == []: # the piority will increase by ratio when customers are waiting
+        #if list(filter(lambda v: v.customerId is None,vehicles)) == []: # the priority will increase by ratio when customers are waiting
         for i,c in enumerate(customers):
             if c.awaitingService and c not in waiting_customer and c not in assigned_customer:
-                global piority_customer
-                piority_customer[i] += priorityRatio
+                global priority_customer
+                priority_customer[i] += priorityRatio
         #else: # if there is at least one taxi free now, we evaluate the distance based on the waiting list for a taxi
         free_vehicles: list[StandardMagentaVehicleDTO] = list(filter(lambda v: v.customerId is None,vehicles))
         for v in free_vehicles:
@@ -70,11 +70,11 @@ def assign(scenario: ScenarioDTO,priorityRatio:float,energyPenalty:float) -> lis
                 for i, v in enumerate(available_vehicles):  # recording all the index of free vehicles in the available vehicles
                     if v.customerId is None:
                         free_v_index.append(i)
-                #calculate weighted distance based on piority
+                #calculate weighted distance based on priority
                 end_positions,time_to_go = base_distance_calculator(available_vehicles,customers)
                 print(time_to_go)
-                distance_total = cdist(awaiting_customers_position,end_positions, metric='euclidean')*185.2216 + time_to_go #10 is estimated average speed
-                distance_total[:,free_v_index]/=np.array(piority_customer)[awaiting_customers_index].reshape(-1,1)
+                distance_total = cdist(awaiting_customers_position,end_positions, metric='euclidean')/ 10+ time_to_go #10 is estimated average speed
+                distance_total[:,free_v_index]/=np.array(priority_customer)[awaiting_customers_index].reshape(-1,1)
                 distanceTravelledTotal = np.array(list(map(lambda v:v.distanceTravelled,available_vehicles)))/energyPenalty
                 distance_total += distanceTravelledTotal
                 if len(available_vehicles)>= len(awaiting_customers):
@@ -111,7 +111,7 @@ def base_distance_calculator(vehicles,customers):
                 distance_to_go.append(
                     (np.linalg.norm(np.array([v.coordX,v.coordY]-np.array([customer_assigned[0].destinationX,customer_assigned[0].destinationY])))+
                     np.linalg.norm(np.array([v.coordX, v.coordY] - np.array(
-                        [customer_assigned[0].coordX, customer_assigned[0].coordY]))))* 1852.216/v.vehicleSpeed
+                        [customer_assigned[0].coordX, customer_assigned[0].coordY]))))/v.vehicleSpeed
                 )
 
     return end_positions, distance_to_go

@@ -63,12 +63,12 @@ def launch_scenario(id):
 def assign(id):
     #controller.step(scenario_runner_api.get_scenario(id))
     scenario = scenario_runner_api.get_scenario(id)
-    if not controller1.piority_customer or controller1.piority_id != id:
+    if not controller1.priority_customer or controller1.priority_id != id:
         controller1.assigned_customer = []
         controller1.waiting_customer = []
         controller1.vehicle_queue = []
-        controller1.piority_customer = [1] * len(scenario.customers)
-        controller1.piority_id = id
+        controller1.priority_customer = [1] * len(scenario.customers)
+        controller1.priority_id = id
     controller1.step(scenario)
     customers = scenario.customers
     #print ("finished: ",len(list(filter(lambda x: x.awaitingService,customers))))
