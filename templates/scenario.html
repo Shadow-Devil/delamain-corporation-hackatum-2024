@@ -155,22 +155,52 @@ Delamain Corporation - Scenario {{ scenario.id }}
                     lastAssigned = Date.now()
                 }
                 for (const vehicle of response.vehicles) {
-                    console.log(vehicle.vehicleSpeed)
-                    console.log(vehicle.remainingTravelTime)
+                    //console.log(vehicle.vehicleSpeed)
+                    //console.log(vehicle.remainingTravelTime)
                     if (vehicle.customerId != null && lines[vehicle.id] == null) {
-                        var line = L.polyline([vehicleMap[vehicle.id].getLatLng(), customerMap[vehicle.customerId].getLatLng()], {color: '#EEA53AFF'}).addTo(map);
+                        var line = L.polyline([L.latLng(vehicle.coordX, vehicle.coordY), customerMap[vehicle.customerId].getLatLng()], {color: '#EEA53AFF'}).addTo(map);
                         //console.log(line);
                         lines[vehicle.id] = line;
                     }
-                    if (vehicle.customerId != null && L.latLng(vehicle.coordX, vehicle.coordY).equals(customerMap[vehicle.customerId].getLatLng())) {
+                    //if (vehicle.customerId != null && L.latLng(vehicle.coordX, vehicle.coordY).equals(customerMap[vehicle.customerId].getLatLng())) {
+                    //    lines[vehicle.id] = null
+                    //}
+                    if (vehicle.customerId == null) {
                         lines[vehicle.id] = null
                     }
-                    vehicleMap[vehicle.id].setLatLng([vehicle.coordX, vehicle.coordY]).update()
-
-                    //console.log(vehicle.remainingTravelTime)
-                }
-                for (const customer of response.customers) {
-                    customerMap[customer.id].setLatLng([customer.coordX, customer.coordY]).update()
+                    //vehicleMap[vehicle.id].setLatLng([vehicle.coordX, vehicle.coordY]).update()
+                    var assignedCustomer = undefined
+                    for (const customer of response.customers) {
+                        if (customer.id == vehicle.customerId) {
+                            assignedCustomer = customer;
+                            break;
+                        }
+                    }
+                    if (assignedCustomer != undefined) {
+                        if (assignedCustomer.coordX == vehicle.coordX && assignedCustomer.coordY == vehicle.coordY) {// customer auf Taxi, distance zusammen updaten
+                            var remaining_distance = vehicle.remainingTravelTime * vehicle.vehicleSpeed / 90000
+                            var totalDistance = Math.pow(Math.pow((assignedCustomer.coordX - assignedCustomer.destinationX), 2) + Math.pow((assignedCustomer.coordY - assignedCustomer.destinationY), 2), 0.5)
+                            var propotion = 1 - remaining_distance / totalDistance
+                            if (propotion == 0)
+                                propotion = 0
+                            console.log(propotion)
+                            var newX = (assignedCustomer.destinationX - vehicle.coordX) * propotion + vehicle.coordX
+                            var newY = (assignedCustomer.destinationY - vehicle.coordY) * propotion + vehicle.coordY
+                            vehicleMap[vehicle.id].setLatLng([newX, newY]).update()
+                            customerMap[vehicle.customerId].setLatLng([newX, newY]).update()
+                        } else {
+                            var remaining_distance = vehicle.remainingTravelTime * vehicle.vehicleSpeed / 90000
+                            var totalDistance = Math.pow(Math.pow((assignedCustomer.coordX - vehicle.coordX), 2) + Math.pow((assignedCustomer.coordY - vehicle.coordY), 2), 0.5)
+                            //console.log(remaining_distance * 68884 / totalDistance)
+                            var propotion = 1 - remaining_distance / totalDistance
+                            if (propotion == 0)
+                                propotion = 0
+                            console.log(propotion)
+                            var newX = (assignedCustomer.coordX - vehicle.coordX) * propotion + vehicle.coordX
+                            var newY = (assignedCustomer.coordY - vehicle.coordY) * propotion + vehicle.coordY
+                            vehicleMap[vehicle.id].setLatLng([newX, newY]).update()
+                        }
+                    }
                 }
             } catch (e) {
                     console.log(e);
