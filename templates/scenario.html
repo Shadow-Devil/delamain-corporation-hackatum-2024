@@ -155,6 +155,8 @@ Delamain Corporation - Scenario {{ scenario.id }}
                     lastAssigned = Date.now()
                 }
                 for (const vehicle of response.vehicles) {
+                    console.log(vehicle.vehicleSpeed)
+                    console.log(vehicle.remainingTravelTime)
                     if (vehicle.customerId != null && lines[vehicle.id] == null) {
                         var line = L.polyline([vehicleMap[vehicle.id].getLatLng(), customerMap[vehicle.customerId].getLatLng()], {color: '#EEA53AFF'}).addTo(map);
                         //console.log(line);
