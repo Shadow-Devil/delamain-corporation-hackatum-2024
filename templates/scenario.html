@@ -24,12 +24,15 @@ Delamain Corporation - Scenario {{ scenario.id }}
 <div class="container">
     <h2 class="subtitle">Scenario: {{ scenario.id }} with {{ scenario.vehicles|length }} Vehicles
                 and {{ scenario.customers|length }} Customers</h2>
-
+    <div>
     <button
             onclick="startLoop()" id="scenario_run_btn"
             class="button mb-3 ml-3">Start Scenario</button>
     <input type="range" value="50" min="1" max="100" id="sliderWithValue" oninput="document.getElementById('sliderID').innerHTML = this.value / 1000">
     <label id="sliderID">0.05</label>
+    <div id="status">Current Status: {{ scenario.status }}</div>
+        <div id="delivered">Delivered: 0/{{ scenario.customers|length }}</div>
+    </div>
     <div id="map"></div>
 <div class="legend" style="padding: 20px 0 20px 20px;">
     <h2>Legend</h2>
@@ -143,6 +146,7 @@ Delamain Corporation - Scenario {{ scenario.id }}
                 var response = JSON.parse(this.responseText);
                 try {
                 if (response.customers.find(c => c.awaitingService) === undefined) {
+
                     console.log("DONE!")
                     clearInterval(refreshIntervalId);
                 }
@@ -153,6 +157,13 @@ Delamain Corporation - Scenario {{ scenario.id }}
                     console.log("Assigning, because " + response.customers.filter(c => c.awaitingService && !alreadyMatchedCustomerIds.has(c.id)).length + " are still missing")
                     var request = new XMLHttpRequest()
                     request.open("get", '{{ url_for("assign", id=scenario.id) }}', false)
+                    request.onreadystatechange = function () {
+                        //TODO display update
+                        var innerResponse = JSON.parse(this.responseText);
+                        document.getElementById('delivered').innerText = 'Delivered ' + innerResponse.finished + '/{{ scenario.customers|length }}'
+                        document.getElementById('status').innerText = 'Current Status: ' + response.status
+                        //alert(JSON.stringify(response))
+                    }
                     request.send()
                     lastAssigned = Date.now()
                 }

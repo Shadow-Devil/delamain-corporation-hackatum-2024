@@ -76,7 +76,11 @@ def assign(id):
     print ("finished: ",len(list(filter(lambda x:not x.awaitingService,customers))))
 
     print("already assigned: ", len(controller1.assigned_customer))
-    return ""
+    return {
+        'finished': len(list(filter(lambda x:not x.awaitingService,customers))),
+        'waiting_customer': len(controller1.waiting_customer),
+        'assigned': len(controller1.assigned_customer),
+    }
 
 
 if __name__ == "__main__":
