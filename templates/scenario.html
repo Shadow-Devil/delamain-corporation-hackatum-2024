@@ -232,6 +232,7 @@ Delamain Corporation - Scenario {{ scenario.id }}
                 try {
                 if (response.customers.find(c => c.awaitingService) === undefined) {
                     document.getElementById('status').innerText = 'Current Status: DONE'
+                    document.getElementById('status').style.color = '#63af5f'
                     document.getElementById('delivered').innerText = 'Delivered ' + {{ scenario.customers|length }} + '/{{ scenario.customers|length }}'
                     console.log("DONE!")
                     clearInterval(refreshIntervalId);
