@@ -16,6 +16,10 @@ Delamain Corporation - Scenario {{ scenario.id }}
         padding: 0;
         margin: 0;
     }
+    .disabled {
+      pointer-events: none;  /* <----------- */
+    }
+
 
     /* Apply filters only for dark-tiles to differentiate light and dark themes */
     .dark-tiles {
@@ -25,7 +29,7 @@ Delamain Corporation - Scenario {{ scenario.id }}
 
 <div class="container">
     <h2 class="subtitle">Scenario: {{ scenario.id }} with {{ scenario.vehicles|length }} Vehicles
-        and {{ scenario.customers|length }} Customers</h2>
+                and {{ scenario.customers|length }} Customers</h2>
     <div>
         <button
                 onclick="startLoop()" id="scenario_run_btn"
@@ -178,146 +182,158 @@ Delamain Corporation - Scenario {{ scenario.id }}
         }
 
 
-        var customers = {{scenario.customers | tojson}};
-        var customerMap = {};
-        for (const customer of customers) {
-            marker = L.marker([customer.coordX, customer.coordY], {icon: customIconCustomer});
-            marker.addTo(map)
-                .bindPopup(`<b>Customer:</b> ${customer.id}<br><b>Coordinates:</b> ${customer.coordX}, ${customer.coordY}`);
-            customerMap[customer.id] = marker;
-            L.polyline([[customer.coordX, customer.coordY], [customer.destinationX, customer.destinationY]], {
-                color: "#423BC4FF",
-                weight: 2
-            }).addTo(map);
-        }
-        var lines = {}
-        var remaining = {}
-        var secondeRouteCounter = {}
-        var refreshIntervalId
-        var lastAssigned = null
+    var customers = {{ scenario.customers|tojson }};
+    var customerMap = {};
+    var customerMap2 = {};
+    var lines = {}
+    var remaining = {}
+    var secondeRouteCounter = {}
+    var refreshIntervalId
+    var lastAssigned = null
+    for (const customer of customers) {
+        marker = L.marker([customer.coordX, customer.coordY], {icon: customIconCustomer});
+        marker.addTo(map)
+            .bindPopup(`<b>Customer:</b> ${customer.id}<br><b>Coordinates:</b> ${customer.coordX}, ${customer.coordY}`);
+        customerMap[customer.id] = marker;
+        customerMap2[customer.id] = customer;
+        var line = L.polyline([[customer.coordX, customer.coordY], [customer.destinationX, customer.destinationY]], {color: "#423BC4FF", weight: 2});
+        lines[customer.id] = line.addTo(map);
+    }
 
-        async function startLoop() {
-            var slider_val = document.getElementById("sliderWithValue").value
-            var response = await fetch('{{ url_for("launch_scenario", id=scenario.id) }}', {
-                method: "POST", headers: {
-                    "speed": slider_val / 1000,
-                },
-            });
-            var start_btn = document.getElementById("scenario_run_btn")
-            start_btn.outerHTML = await response.text()
-            await fetch('{{ url_for("assign", id=scenario.id) }}')
-            refreshIntervalId = window.setInterval(updateMap, 250);
-        }
+    async function startLoop() {
+        var slider_val = document.getElementById("sliderWithValue").value
+        var response = await fetch('{{ url_for("launch_scenario", id=scenario.id) }}', {method: "POST", headers: {
+            "speed": slider_val / 1000,
+            },
+        });
+        var start_btn = document.getElementById("scenario_run_btn")
+        start_btn.outerHTML = await response.text()
+        await fetch('{{ url_for("assign", id=scenario.id) }}')
+        refreshIntervalId = window.setInterval(updateMap, 250);
+    }
+    function updateMap() {
+        var request = new XMLHttpRequest()
+        request.open("get", '{{ url_for("get_scenario", id=scenario.id) }}', false)
+        request.onreadystatechange = function() {
+            if (this.readyState === 4 && this.status === 200) {
+                var response = JSON.parse(this.responseText);
+                try {
+                if (response.customers.find(c => c.awaitingService) === undefined) {
+                    document.getElementById('status').innerText = 'Current Status: DONE'
+                    document.getElementById('delivered').innerText = 'Delivered ' + {{ scenario.customers|length }} + '/{{ scenario.customers|length }}'
+                    console.log("DONE!")
+                    clearInterval(refreshIntervalId);
+                }
+                var alreadyMatchedCustomerIds = new Set(response.vehicles.map(v => v.customerId));
 
-        function updateMap() {
-            var request = new XMLHttpRequest()
-            request.open("get", '{{ url_for("get_scenario", id=scenario.id) }}', false)
-            request.onreadystatechange = function () {
-                if (this.readyState === 4 && this.status === 200) {
-                    var response = JSON.parse(this.responseText);
-                    try {
-                        if (response.customers.find(c => c.awaitingService) === undefined) {
-                            document.getElementById('status').innerText = 'Current Status: DONE'
-                            document.getElementById('delivered').innerText = 'Delivered ' + {{scenario.customers | length}}
-                            +'/{{ scenario.customers|length }}'
-                            console.log("DONE!")
-                            clearInterval(refreshIntervalId);
+
+                if (response.vehicles.find(v => v.isAvailable) && response.customers.find(c => c.awaitingService) && (lastAssigned == null || lastAssigned < (Date.now() - 4000))) {
+                    console.log("Assigning, because " + response.customers.filter(c => c.awaitingService && !alreadyMatchedCustomerIds.has(c.id)).length + " are still missing")
+                    var request = new XMLHttpRequest()
+                    request.open("get", '{{ url_for("assign", id=scenario.id) }}', false)
+                    request.onreadystatechange = function () {
+                        //TODO display update
+                        var innerResponse = JSON.parse(this.responseText);
+                        document.getElementById('delivered').innerText = 'Delivered ' + innerResponse.finished + '/{{ scenario.customers|length }}'
+                        document.getElementById('status').innerText = 'Current Status: ' + response.status
+                        //alert(JSON.stringify(response))
+                    }
+                    request.send()
+                    lastAssigned = Date.now()
+                }
+                for (const vehicle of response.vehicles) {
+
+                    // Vehicle is at customer
+                    if (vehicle.customerId &&
+                        vehicleMap[vehicle.id].getLatLng().equals(
+                            customerMap[vehicle.customerId].getLatLng())) {
+                        lines[vehicle.id].remove()
+                        vehicleMap[vehicle.id].setIcon(customIconTaxiWithCustomer)
+                        customerMap[vehicle.customerId].setOpacity(0)
+                    }
+
+                    // Vehicle is done with customer
+                    if (vehicle.isAvailable) {
+                        vehicleMap[vehicle.id].setIcon(customIconTaxi)
+                    }
+
+                    //console.log(vehicle.vehicleSpeed)
+                    //console.log(vehicle.remainingTravelTime)
+                    if (vehicle.customerId != null && lines[vehicle.id] == null) {
+                        var line = L.polyline([L.latLng(vehicle.coordX, vehicle.coordY), customerMap[vehicle.customerId].getLatLng()], {color: '#EEA53AFF', weight: 2}).addTo(map);
+                        //console.log(line);
+                        lines[vehicle.id] = line;
+                        if(remaining[vehicle.id] ==null){ // record the maximal remaining time
+                            remaining[vehicle.id] = vehicle.remainingTravelTime
                         }
-                        var alreadyMatchedCustomerIds = new Set(response.vehicles.map(v => v.customerId));
-
-
-                        if (response.vehicles.find(v => v.isAvailable) && response.customers.find(c => c.awaitingService) && (lastAssigned == null || lastAssigned < (Date.now() - 4000))) {
-                            console.log("Assigning, because " + response.customers.filter(c => c.awaitingService && !alreadyMatchedCustomerIds.has(c.id)).length + " are still missing")
-                            var request = new XMLHttpRequest()
-                            request.open("get", '{{ url_for("assign", id=scenario.id) }}', false)
-                            request.onreadystatechange = function () {
-                                //TODO display update
-                                var innerResponse = JSON.parse(this.responseText);
-                                document.getElementById('delivered').innerText = 'Delivered ' + innerResponse.finished + '/{{ scenario.customers|length }}'
-                                document.getElementById('status').innerText = 'Current Status: ' + response.status
-                                //alert(JSON.stringify(response))
-                            }
-                            request.send()
-                            lastAssigned = Date.now()
+                        if(secondeRouteCounter[vehicle.id] == null){
+                            secondeRouteCounter[vehicle.id] = 0
                         }
-                        for (const vehicle of response.vehicles) {
-                            if (vehicleMap[vehicle.id]?.getIcon()?.iconUrl != customIconTaxiWithCustomer.iconUrl && vehicle.customerId && vehicleMap[vehicle.id].getLatLng().equals(customerMap[vehicle.customerId].getLatLng())) {
-                                vehicleMap[vehicle.id].setIcon(customIconTaxiWithCustomer)
-                                customerMap[vehicle.id].setOpacity(0)
-                            }
-                            //console.log(vehicle.vehicleSpeed)
-                            //console.log(vehicle.remainingTravelTime)
-                            if (vehicle.customerId != null && lines[vehicle.id] == null) {
-                                var line = L.polyline([L.latLng(vehicle.coordX, vehicle.coordY), customerMap[vehicle.customerId].getLatLng()], {
-                                    color: '#EEA53AFF',
-                                    weight: 2
-                                }).addTo(map);
-                                //console.log(line);
-                                lines[vehicle.id] = line;
-                                if (remaining[vehicle.id] == null) { // record the maximal remaining time
+                    }
+                    //if (vehicle.customerId != null && L.latLng(vehicle.coordX, vehicle.coordY).equals(customerMap[vehicle.customerId].getLatLng())) {
+                    //    lines[vehicle.id] = null
+                    //}
+                    if (vehicle.customerId == null) {
+                        lines[vehicle.id] = null
+                        remaining[vehicle.id] = null
+                        secondeRouteCounter[vehicle.id] = 0
+                    }
+                    //vehicleMap[vehicle.id].setLatLng([vehicle.coordX, vehicle.coordY]).update()
+                    var assignedCustomer = undefined
+                    for (const customer of response.customers) {
+                        if (customer.id == vehicle.customerId) {
+                            assignedCustomer = customer;
+                            break;
+                        }
+                    }
+                    if (assignedCustomer != undefined) {
+                        if (assignedCustomer.coordX == vehicle.coordX && assignedCustomer.coordY == vehicle.coordY) {// customer auf Taxi, distance zusammen updaten
+                            if(secondeRouteCounter[vehicle.id] == 0){
+                                console.log("turning")
+                                if(remaining[vehicle.id] != vehicle.remainingTravelTime){
                                     remaining[vehicle.id] = vehicle.remainingTravelTime
-                                }
-                                if (secondeRouteCounter[vehicle.id] == null) {
-                                    secondeRouteCounter[vehicle.id] = 0
+                                    secondeRouteCounter[vehicle.id] +=1
                                 }
                             }
-                            //if (vehicle.customerId != null && L.latLng(vehicle.coordX, vehicle.coordY).equals(customerMap[vehicle.customerId].getLatLng())) {
-                            //    lines[vehicle.id] = null
-                            //}
-                            if (vehicle.customerId == null) {
-                                lines[vehicle.id] = null
+                            console.log(vehicle.remainingTravelTime)
+                            console.log(remaining[vehicle.id])
+                            var propotion = 1 - vehicle.remainingTravelTime / remaining[vehicle.id]
+                            console.log(propotion)
+                            var newX = (assignedCustomer.destinationX - vehicle.coordX) * propotion + vehicle.coordX
+                            var newY = (assignedCustomer.destinationY - vehicle.coordY) * propotion + vehicle.coordY
+                            vehicleMap[vehicle.id].setLatLng([newX, newY]).update()
+                            customerMap[vehicle.customerId].setLatLng([newX, newY]).update()
+                        } else {
+                            var propotion = 1 - vehicle.remainingTravelTime / remaining[vehicle.id]
+                            console.log(remaining[vehicle.id])
+                            //console.log(propotion)
+                            var newX = (assignedCustomer.coordX - vehicle.coordX) * propotion + vehicle.coordX
+                            var newY = (assignedCustomer.coordY - vehicle.coordY) * propotion + vehicle.coordY
+                            vehicleMap[vehicle.id].setLatLng([newX, newY]).update()
+                            console.log(vehicle.remainingTravelTime)
+                            if(vehicle.remainingTravelTime == 0){
                                 remaining[vehicle.id] = null
-                                secondeRouteCounter[vehicle.id] = 0
-                            }
-                            //vehicleMap[vehicle.id].setLatLng([vehicle.coordX, vehicle.coordY]).update()
-                            var assignedCustomer = undefined
-                            for (const customer of response.customers) {
-                                if (customer.id == vehicle.customerId) {
-                                    assignedCustomer = customer;
-                                    break;
-                                }
-                            }
-                            if (assignedCustomer != undefined) {
-                                if (assignedCustomer.coordX == vehicle.coordX && assignedCustomer.coordY == vehicle.coordY) {// customer auf Taxi, distance zusammen updaten
-                                    if (secondeRouteCounter[vehicle.id] == 0) {
-                                        console.log("turning")
-                                        if (remaining[vehicle.id] != vehicle.remainingTravelTime) {
-                                            remaining[vehicle.id] = vehicle.remainingTravelTime
-                                            secondeRouteCounter[vehicle.id] += 1
-                                        }
-                                    }
-                                    console.log(vehicle.remainingTravelTime)
-                                    console.log(remaining[vehicle.id])
-                                    var propotion = 1 - vehicle.remainingTravelTime / remaining[vehicle.id]
-                                    console.log(propotion)
-                                    var newX = (assignedCustomer.destinationX - vehicle.coordX) * propotion + vehicle.coordX
-                                    var newY = (assignedCustomer.destinationY - vehicle.coordY) * propotion + vehicle.coordY
-                                    vehicleMap[vehicle.id].setLatLng([newX, newY]).update()
-                                    customerMap[vehicle.customerId].setLatLng([newX, newY]).update()
-                                } else {
-                                    var propotion = 1 - vehicle.remainingTravelTime / remaining[vehicle.id]
-                                    console.log(remaining[vehicle.id])
-                                    //console.log(propotion)
-                                    var newX = (assignedCustomer.coordX - vehicle.coordX) * propotion + vehicle.coordX
-                                    var newY = (assignedCustomer.coordY - vehicle.coordY) * propotion + vehicle.coordY
-                                    vehicleMap[vehicle.id].setLatLng([newX, newY]).update()
-                                    console.log(vehicle.remainingTravelTime)
-                                    if (vehicle.remainingTravelTime == 0) {
-                                        remaining[vehicle.id] = null
-                                    }
-                                }
                             }
                         }
-                    } catch (e) {
-                        console.log(e);
-                        clearInterval(refreshIntervalId)
+                    }
+                }
+                for (var customer of response.customers) {
+                    if (!customer.awaitingService && lines[customer.id]) {
+                        //console.log("DELETED CUSTOMER LINE")
+                        lines[customer.id].remove()
+                        lines[customer.id] = null
                     }
                 }
 
-            };
-            request.send();
-
+            } catch (e) {
+                    console.log(e);
+                clearInterval(refreshIntervalId)
+            }
         }
-    </script>
-</div>
-    {% endblock %}
+
+        };
+        request.send();
+
+    }
+</script>
+{% endblock %}
