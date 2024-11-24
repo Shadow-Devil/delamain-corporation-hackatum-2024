@@ -120,18 +120,21 @@ Delamain Corporation - Scenario {{ scenario.id }}
 
     var customers = {{ scenario.customers|tojson }};
     var customerMap = {};
-    for (const customer of customers) {
-        marker = L.marker([customer.coordX, customer.coordY], {icon: customIconCustomer});
-        marker.addTo(map)
-            .bindPopup(`<b>Customer:</b> ${customer.id}<br><b>Coordinates:</b> ${customer.coordX}, ${customer.coordY}`);
-        customerMap[customer.id] = marker;
-        L.polyline([[customer.coordX, customer.coordY], [customer.destinationX, customer.destinationY]], {color: "#423BC4FF", weight: 2}).addTo(map);
-    }
+    var customerMap2 = {};
     var lines = {}
     var remaining = {}
     var secondeRouteCounter = {}
     var refreshIntervalId
     var lastAssigned = null
+    for (const customer of customers) {
+        marker = L.marker([customer.coordX, customer.coordY], {icon: customIconCustomer});
+        marker.addTo(map)
+            .bindPopup(`<b>Customer:</b> ${customer.id}<br><b>Coordinates:</b> ${customer.coordX}, ${customer.coordY}`);
+        customerMap[customer.id] = marker;
+        customerMap2[customer.id] = customer;
+        var line = L.polyline([[customer.coordX, customer.coordY], [customer.destinationX, customer.destinationY]], {color: "#423BC4FF", weight: 2});
+        lines[customer.id] = line.addTo(map);
+    }
 
     async function startLoop() {
         var slider_val = document.getElementById("sliderWithValue").value
@@ -175,10 +178,21 @@ Delamain Corporation - Scenario {{ scenario.id }}
                     lastAssigned = Date.now()
                 }
                 for (const vehicle of response.vehicles) {
-                    if (vehicleMap[vehicle.id]?.getIcon()?.iconUrl != customIconTaxiWithCustomer.iconUrl && vehicle.customerId && vehicleMap[vehicle.id].getLatLng().equals(customerMap[vehicle.customerId].getLatLng())) {
+
+                    // Vehicle is at customer
+                    if (vehicle.customerId &&
+                        vehicleMap[vehicle.id].getLatLng().equals(
+                            customerMap[vehicle.customerId].getLatLng())) {
+                        lines[vehicle.id].remove()
                         vehicleMap[vehicle.id].setIcon(customIconTaxiWithCustomer)
-                        customerMap[vehicle.id].setOpacity(0)
+                        customerMap[vehicle.customerId].setOpacity(0)
                     }
+
+                    // Vehicle is done with customer
+                    if (vehicle.isAvailable) {
+                        vehicleMap[vehicle.id].setIcon(customIconTaxi)
+                    }
+
                     //console.log(vehicle.vehicleSpeed)
                     //console.log(vehicle.remainingTravelTime)
                     if (vehicle.customerId != null && lines[vehicle.id] == null) {
@@ -239,6 +253,14 @@ Delamain Corporation - Scenario {{ scenario.id }}
                         }
                     }
                 }
+                for (var customer of response.customers) {
+                    if (!customer.awaitingService && lines[customer.id]) {
+                        console.log("DELETED CUSTOMER LINE")
+                        lines[customer.id].remove()
+                        lines[customer.id] = null
+                    }
+                }
+
             } catch (e) {
                     console.log(e);
                 clearInterval(refreshIntervalId)
