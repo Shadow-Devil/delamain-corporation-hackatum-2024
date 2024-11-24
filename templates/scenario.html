@@ -28,8 +28,8 @@ Delamain Corporation - Scenario {{ scenario.id }}
     <button
             onclick="startLoop()" id="scenario_run_btn"
             class="button mb-3 ml-3">Start Scenario</button>
-    <input type="range" value="50" min="1" max="100" id="sliderWithValue" oninput="document.getElementById('sliderID').innerHTML = this.value / 100">
-    <label id="sliderID">0.5</label>
+    <input type="range" value="50" min="1" max="100" id="sliderWithValue" oninput="document.getElementById('sliderID').innerHTML = this.value / 1000">
+    <label id="sliderID">0.05</label>
     <div id="map"></div>
 <div class="legend" style="padding: 20px 0 20px 20px;">
     <h2>Legend</h2>
@@ -127,7 +127,7 @@ Delamain Corporation - Scenario {{ scenario.id }}
     async function startLoop() {
         var slider_val = document.getElementById("sliderWithValue").value
         var response = await fetch('{{ url_for("launch_scenario", id=scenario.id) }}', {method: "POST", headers: {
-            "speed": slider_val / 100,
+            "speed": slider_val / 1000,
             },
         });
         var start_btn = document.getElementById("scenario_run_btn")
