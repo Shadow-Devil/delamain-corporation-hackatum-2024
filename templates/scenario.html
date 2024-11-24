@@ -206,11 +206,6 @@ Delamain Corporation - Scenario {{ scenario.id }}
         var line = L.polyline([[customer.coordX, customer.coordY], [customer.destinationX, customer.destinationY]], {color: "#423BC4FF", weight: 2});
         lines[customer.id] = line.addTo(map);
     }
-    var lines = {}
-    var remaining = {}
-    var secondeRouteCounter = {}
-    var refreshIntervalId
-    var lastAssigned = null
 
     async function startLoop() {
         var slider_val = document.getElementById("sliderWithValue").value
@@ -221,7 +216,7 @@ Delamain Corporation - Scenario {{ scenario.id }}
         var start_btn = document.getElementById("scenario_run_btn")
         start_btn.outerHTML = await response.text()
         await fetch('{{ url_for("assign", id=scenario.id) }}')
-        refreshIntervalId = window.setInterval(updateMap, 250);
+        refreshIntervalId = window.setInterval(updateMap, 50);
     }
     function updateMap() {
         var request = new XMLHttpRequest()
@@ -240,7 +235,7 @@ Delamain Corporation - Scenario {{ scenario.id }}
                 var alreadyMatchedCustomerIds = new Set(response.vehicles.map(v => v.customerId));
 
 
-                if (response.vehicles.find(v => v.isAvailable) && response.customers.find(c => c.awaitingService) && (lastAssigned == null || lastAssigned < (Date.now() - 4000))) {
+                if (response.vehicles.find(v => v.isAvailable) && response.customers.find(c => c.awaitingService) && (lastAssigned == null || lastAssigned < (Date.now() - 1000))) {
                     console.log("Assigning, because " + response.customers.filter(c => c.awaitingService && !alreadyMatchedCustomerIds.has(c.id)).length + " are still missing")
                     var request = new XMLHttpRequest()
                     request.open("get", '{{ url_for("assign", id=scenario.id) }}', false)
