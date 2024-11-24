@@ -14,6 +14,10 @@ Delamain Corporation - Scenario {{ scenario.id }}
         padding: 0;
         margin: 0;
     }
+    .disabled {
+      pointer-events: none;  /* <----------- */
+    }
+
 
     /* Apply filters only for dark-tiles to differentiate light and dark themes */
     .dark-tiles {
@@ -30,8 +34,8 @@ Delamain Corporation - Scenario {{ scenario.id }}
             class="button mb-3 ml-3">Start Scenario</button>
     <input type="range" value="50" min="1" max="100" id="sliderWithValue" oninput="document.getElementById('sliderID').innerHTML = this.value / 1000">
     <label id="sliderID">0.05</label>
-    <div id="status">Current Status: {{ scenario.status }}</div>
-        <div id="delivered">Delivered: 0/{{ scenario.customers|length }}</div>
+    <button class="button is-float-right disabled" style="margin: 0.0rem 0.5rem" id="status">Current Status: {{ scenario.status }}</button>
+        <button class="button is-float-right disabled" style="margin: 0 0.5rem" id="delivered">Delivered: 0/{{ scenario.customers|length }}</button>
     </div>
     <div id="map"></div>
 <div class="legend" style="padding: 20px 0 20px 20px;">
