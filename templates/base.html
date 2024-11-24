@@ -22,31 +22,35 @@
 
         :root[data-theme="light"] {
             --yellow: #eea53a;
-            --white: #ffffff; /*#EFCDD9;/*#eae9fc;*/
+            --white: #fff4f5; /*#EFCDD9;/*#eae9fc;*/
+            --buttons: #ffffff;
             --black: #0e0d2c;
             --red: #e54e8e;
-            --purple:#bc74bd;
-            --pink:#EFCDD9 ;
+            --purple: #bc74bd;
+            --pink: #EFCDD9;
             --text: #221f69;
-            --background: #ffffff; /*#fbfbfe;*/
+            --background: #fff4f5; /*#fbfbfe;*/
             --primary: #423bc4;
             --secondary: #b8d7ff;
             --accent: #619bff;
+            --url: url('{{ url_for('static', filename='images/Munich4.png') }}');
         }
 
         :root[data-theme="dark"] {
             --yellow: #eab66a;
             --white: #ffffff;
+            --buttons: #000000;
             --black: #0e0d2c;
             --red: #e54e8e;
-            --pink:#bc74bd;
-            --purple:#EFCDD9 ;
+            --pink: #bc74bd;
+            --purple: #EFCDD9;
             --text: #ffffff;
             --background: #0e0d2c;
             --primary: #423bc4;
             --secondary: #001f47;
-
             --accent: #2a2581;
+            --url: url('{{ url_for('static', filename='images/Munich5.png') }}');
+
         }
 
 
@@ -65,6 +69,10 @@
 
         .content {
             color: var(--text);
+        }
+
+        input {
+            margin: 13px;
         }
 
         .subtitle {
@@ -159,9 +167,9 @@
 
         }
 
-    .container:not(.is-max-tablet):not(.is-max-desktop):not(.is-max-widescreen) {
-        max-width: 100%;
-    }
+        .container:not(.is-max-tablet):not(.is-max-desktop):not(.is-max-widescreen) {
+            max-width: 100%;
+        }
 
         #scenarios {
             display: flex;
@@ -196,7 +204,7 @@
         .control {
             margin-left: 20px;
             margin-bottom: 20px;
-            background-color: var(--background)!important;
+            background-color: var(--background) !important;
             border: 1px solid var(--secondary);
             color: var(--text);
             border-radius: 7px;
@@ -249,11 +257,11 @@
         }
 
         .gradient-text {
-        font-weight: bold;
-        background: linear-gradient(to bottom, #ffffff, #c8daff);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
+            font-weight: bold;
+            background: linear-gradient(to bottom, #ffffff, #c8daff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
         .box a:hover {
             /*color: var(--primary);*/
@@ -283,7 +291,8 @@
 <header>
     <img src="{{ url_for('static', filename='images/Logo.png') }}" alt="Delamain Logo"
          style="height: 60px;"> <!-- Logo on the left of the header -->
-    <a href="/" class="header-title gradient-text">elamain Corporation</a> <!-- Company name directly next to the logo -->
+    <a href="/" class="header-title gradient-text">elamain Corporation</a>
+    <!-- Company name directly next to the logo -->
     <nav class="navbar-menu-right">
         <a class="navbar-item theme-icon" href="#" id="theme-toggle">&#9790;</a> <!-- Sun/Moon symbol -->
         <a class="navbar-item" href="/about">About</a>
