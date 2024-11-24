@@ -178,7 +178,13 @@ Delamain Corporation - Scenario {{ scenario.id }}
         for (const vehicle of vehicles) {
             var marker = L.marker([vehicle.coordX, vehicle.coordY], {icon: customIconTaxi});
             marker.addTo(map)
-                .bindPopup(`<b>Vehicle:</b> ${vehicle.id}<br><b>Coordinates:</b> ${vehicle.coordX}, ${vehicle.coordY}`);
+                .bindPopup(
+                `<b>Vehicle ID:</b> ${vehicle.id}<br>
+                <b>Coordinates:</b> (${vehicle.coordX}, ${vehicle.coordY})<br>
+                <b>Availability:</b> ${vehicle.isAvailable !== null ? (vehicle.isAvailable ? 'Available' : 'Not Available') : 'Unknown'}<br>
+                <b>Speed:</b> ${vehicle.vehicleSpeed !== null ? vehicle.vehicleSpeed + ' m/s' : 'Unknown'}<br>
+                <b>Customer ID:</b> ${vehicle.customerId || 'None'}<br>
+                <b>Remaining Travel Time:</b> ${vehicle.remainingTravelTime !== null ? vehicle.remainingTravelTime + ' seconds' : 'Unknown'}<br>`);
             vehicleMap[vehicle.id] = marker
         }
 
@@ -200,6 +206,11 @@ Delamain Corporation - Scenario {{ scenario.id }}
         var line = L.polyline([[customer.coordX, customer.coordY], [customer.destinationX, customer.destinationY]], {color: "#423BC4FF", weight: 2});
         lines[customer.id] = line.addTo(map);
     }
+    var lines = {}
+    var remaining = {}
+    var secondeRouteCounter = {}
+    var refreshIntervalId
+    var lastAssigned = null
 
     async function startLoop() {
         var slider_val = document.getElementById("sliderWithValue").value
@@ -316,6 +327,14 @@ Delamain Corporation - Scenario {{ scenario.id }}
                                 remaining[vehicle.id] = null
                             }
                         }
+                        console.log(vehicleMap[vehicle.id].getLatLng())
+                        vehicleMap[vehicle.id].bindPopup(
+                            `<b>Vehicle ID:</b> ${vehicle.id}<br>
+                             <b>Coordinates:</b> (${vehicleMap[vehicle.id].getLatLng().lat}, ${vehicleMap[vehicle.id].getLatLng().lng})<br>
+                             <b>Availability:</b> ${vehicle.isAvailable !== null ? (vehicle.isAvailable ? 'Available' : 'Not Available') : 'Unknown'}<br>
+                             <b>Speed:</b> ${vehicle.vehicleSpeed !== null ? vehicle.vehicleSpeed + ' m/s' : 'Unknown'}<br>
+                             <b>Customer ID:</b> ${vehicle.customerId || 'None'}<br>
+                             <b>Remaining Travel Time:</b> ${vehicle.remainingTravelTime !== null ? vehicle.remainingTravelTime + ' seconds' : 'Unknown'}<br>`);
                     }
                 }
                 for (var customer of response.customers) {
