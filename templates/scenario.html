@@ -255,7 +255,7 @@ Delamain Corporation - Scenario {{ scenario.id }}
                 }
                 for (var customer of response.customers) {
                     if (!customer.awaitingService && lines[customer.id]) {
-                        console.log("DELETED CUSTOMER LINE")
+                        //console.log("DELETED CUSTOMER LINE")
                         lines[customer.id].remove()
                         lines[customer.id] = null
                     }
