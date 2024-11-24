@@ -136,8 +136,8 @@ Delamain Corporation - Scenario {{ scenario.id }}
         lightTiles.addTo(map);
 
         // JavaScript for toggling sun/moon icon and dark/light theme
-        themeToggle = document.getElementById('theme-toggle');
-        htmlElement = document.documentElement;
+        var themeToggle = document.getElementById('theme-toggle');
+        var htmlElement = document.documentElement;
 
         themeToggle.addEventListener('click', () => {
             if (htmlElement.getAttribute('data-theme') === 'light') {
