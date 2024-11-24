@@ -57,7 +57,8 @@ def create_scenario():
 
 @app.route("/api/scenario/<id>/launch", methods=["POST"])
 def launch_scenario(id):
-    return render_template("fragment/launch_scenario.html", result=scenario_runner_api.launch_scenario(id, 0.05))
+    speed = float(request.headers.get('speed'))
+    return render_template("fragment/launch_scenario.html", result=scenario_runner_api.launch_scenario(id, speed))
 
 @app.route("/api/scenario/<id>/assign")
 def assign(id):
