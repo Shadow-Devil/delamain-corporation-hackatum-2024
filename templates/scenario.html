@@ -119,6 +119,8 @@ Delamain Corporation - Scenario {{ scenario.id }}
         L.polyline([[customer.coordX, customer.coordY], [customer.destinationX, customer.destinationY]], {color: "#423BC4FF"}).addTo(map);
     }
     var lines = {}
+    var remaining = {}
+    var secondeRouteCounter = {}
     var refreshIntervalId
     var lastAssigned = null
 
@@ -161,12 +163,20 @@ Delamain Corporation - Scenario {{ scenario.id }}
                         var line = L.polyline([L.latLng(vehicle.coordX, vehicle.coordY), customerMap[vehicle.customerId].getLatLng()], {color: '#EEA53AFF'}).addTo(map);
                         //console.log(line);
                         lines[vehicle.id] = line;
+                        if(remaining[vehicle.id] ==null){ // record the maximal remaining time
+                            remaining[vehicle.id] = vehicle.remainingTravelTime
+                        }
+                        if(secondeRouteCounter[vehicle.id] == null){
+                            secondeRouteCounter[vehicle.id] = 0
+                        }
                     }
                     //if (vehicle.customerId != null && L.latLng(vehicle.coordX, vehicle.coordY).equals(customerMap[vehicle.customerId].getLatLng())) {
                     //    lines[vehicle.id] = null
                     //}
                     if (vehicle.customerId == null) {
                         lines[vehicle.id] = null
+                        remaining[vehicle.id] = null
+                        secondeRouteCounter[vehicle.id] = 0
                     }
                     //vehicleMap[vehicle.id].setLatLng([vehicle.coordX, vehicle.coordY]).update()
                     var assignedCustomer = undefined
@@ -178,27 +188,32 @@ Delamain Corporation - Scenario {{ scenario.id }}
                     }
                     if (assignedCustomer != undefined) {
                         if (assignedCustomer.coordX == vehicle.coordX && assignedCustomer.coordY == vehicle.coordY) {// customer auf Taxi, distance zusammen updaten
-                            var remaining_distance = vehicle.remainingTravelTime * vehicle.vehicleSpeed / 90000
-                            var totalDistance = Math.pow(Math.pow((assignedCustomer.coordX - assignedCustomer.destinationX), 2) + Math.pow((assignedCustomer.coordY - assignedCustomer.destinationY), 2), 0.5)
-                            var propotion = 1 - remaining_distance / totalDistance
-                            if (propotion == 0)
-                                propotion = 0
+                            if(secondeRouteCounter[vehicle.id] == 0){
+                                console.log("turning")
+                                if(remaining[vehicle.id] != vehicle.remainingTravelTime){
+                                    remaining[vehicle.id] = vehicle.remainingTravelTime
+                                    secondeRouteCounter[vehicle.id] +=1
+                                }
+                            }
+                            console.log(vehicle.remainingTravelTime)
+                            console.log(remaining[vehicle.id])
+                            var propotion = 1 - vehicle.remainingTravelTime / remaining[vehicle.id]
                             console.log(propotion)
                             var newX = (assignedCustomer.destinationX - vehicle.coordX) * propotion + vehicle.coordX
                             var newY = (assignedCustomer.destinationY - vehicle.coordY) * propotion + vehicle.coordY
                             vehicleMap[vehicle.id].setLatLng([newX, newY]).update()
                             customerMap[vehicle.customerId].setLatLng([newX, newY]).update()
                         } else {
-                            var remaining_distance = vehicle.remainingTravelTime * vehicle.vehicleSpeed / 90000
-                            var totalDistance = Math.pow(Math.pow((assignedCustomer.coordX - vehicle.coordX), 2) + Math.pow((assignedCustomer.coordY - vehicle.coordY), 2), 0.5)
-                            //console.log(remaining_distance * 68884 / totalDistance)
-                            var propotion = 1 - remaining_distance / totalDistance
-                            if (propotion == 0)
-                                propotion = 0
-                            console.log(propotion)
+                            var propotion = 1 - vehicle.remainingTravelTime / remaining[vehicle.id]
+                            console.log(remaining[vehicle.id])
+                            //console.log(propotion)
                             var newX = (assignedCustomer.coordX - vehicle.coordX) * propotion + vehicle.coordX
                             var newY = (assignedCustomer.coordY - vehicle.coordY) * propotion + vehicle.coordY
                             vehicleMap[vehicle.id].setLatLng([newX, newY]).update()
+                            console.log(vehicle.remainingTravelTime)
+                            if(vehicle.remainingTravelTime == 0){
+                                remaining[vehicle.id] = null
+                            }
                         }
                     }
                 }
