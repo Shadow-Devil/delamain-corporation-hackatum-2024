@@ -136,7 +136,7 @@ Delamain Corporation - Scenario {{ scenario.id }}
         var start_btn = document.getElementById("scenario_run_btn")
         start_btn.outerHTML = await response.text()
         await fetch('{{ url_for("assign", id=scenario.id) }}')
-        refreshIntervalId = window.setInterval(updateMap, 500);
+        refreshIntervalId = window.setInterval(updateMap, 250);
     }
     function updateMap() {
         var request = new XMLHttpRequest()
